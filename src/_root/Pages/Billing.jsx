@@ -247,7 +247,7 @@ const Billing = () => {
             <div className='min-w-fit'>
               <label className="flex items-center space-x-2">
                 <input type="checkbox" className="hidden peer" onClick={() => setTax(!tax)} />
-                <span className="w-5 h-5 bg-transparent border-2 border-zinc-200 rounded text-transparent peer-checked:text-zinc-50 flex items-center justify-center transition-all">
+                <span className="w-5 h-5 bg-transparent border-2 border-zinc-200 rounded text-transparent peer-checked:text-violet-600 flex items-center justify-center transition-all">
                   <IconCheck />
                 </span>
                 <p>Add Tax</p>
