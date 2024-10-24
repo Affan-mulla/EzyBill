@@ -12,7 +12,7 @@ const EditProduct = () => {
     
     
   return (
-    <div className='bg-zinc-50 dark:bg-neutral-900 h-full md:px-[100px] p-5'>
+    <div className=' h-full md:px-[100px] p-5'>
       {isLoading ? (
         <Loader/>
       ) : (
