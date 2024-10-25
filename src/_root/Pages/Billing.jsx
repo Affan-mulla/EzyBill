@@ -22,6 +22,7 @@ import { Toast } from '@/components/ui/toast';
 import { useNavigate } from 'react-router-dom';
 import { toast } from '@/hooks/use-toast';
 import { Card } from '@/components/ui/card';
+import { format } from 'date-fns';
 
 // Quantity Counter component for reusability
 const QuantityCounter = ({ index, quantity, onIncrease, onDecrease }) => (
@@ -270,7 +271,7 @@ const Billing = () => {
         selectedRows={selectedRows}
         customerName={customerName}
         paymentMethod={payment}
-        purchaseDate={new Date().toLocaleDateString()}
+        purchaseDate={format(new Date(), "PPP")}
         total={total}
         subtotal={subtotal}
         tax={Tax}
