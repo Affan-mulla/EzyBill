@@ -9,7 +9,7 @@ export function DataTable({ columns, data, fetchData, filterName, DateChange, da
   const [columnFilters, setColumnFilters] = useState(
     []
   )
-  const [pageSize, setPageSize] = useState('4')
+  const [pageSize, setPageSize] = useState(4)
   const table = useReactTable({
     data,
     columns: columns(fetchData),
