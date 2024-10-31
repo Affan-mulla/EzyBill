@@ -31,7 +31,7 @@ export function DataTable({ columns, data, fetchData, filterName, DateChange, da
     setdate(newDate)
     DateChange(newDate)
   }
-
+console.log(data);
 
 
   return (

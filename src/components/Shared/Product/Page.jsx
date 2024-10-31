@@ -10,6 +10,8 @@ const DemoPage = () => {
   const { user } = useUserContext();
   const { data: allProducts, isLoading, refetch } = useGetProduct(user.id);  // `refetch` to be passed down
 
+  console.log(allProducts);
+  
   useEffect(() => {
     if (allProducts) {
       setData(allProducts);  // Assuming `allProducts` is an array of objects

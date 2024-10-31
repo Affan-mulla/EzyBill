@@ -84,7 +84,9 @@ function groupDataByDay(data) {
 
 function groupDataBySpecificDateAndHour(data, specificDate) {
   const grouped = {};
-
+  console.log(data);
+  
+  
   // Ensure all 24 hours are initialized with 0 spent
   for (let hour = 0; hour < 24; hour++) {
     const formattedHour = hour.toString()?.padStart(2, '0') + ":00";
@@ -128,7 +130,7 @@ export function AreaChart1({ chartData, date }) {
       };
     });
   }
-  else if (!date[0] || compareAsc(date[0], date[1]) === 0) {
+  else if (!date[0] || compareAsc(date[0].toDateString(), date[1].toDateString()) === 0) {
 
     formattedChartData = groupDataBySpecificDateAndHour(validChartData);
   }

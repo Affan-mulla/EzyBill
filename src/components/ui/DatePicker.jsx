@@ -39,7 +39,7 @@ export function DatePickerWithPresets({ onChangeDate }) {
     switch (value) {
       case "0": // Today
         selectedDateStart = startOfDay(new Date());
-        selectedDateEnd = startOfDay(new Date());
+        selectedDateEnd = endOfDay(new Date());
         break;
       case "thisWeek": // This Week
         selectedDateStart = startOfWeek(new Date());

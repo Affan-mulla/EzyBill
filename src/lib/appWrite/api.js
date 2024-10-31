@@ -199,11 +199,13 @@ export class AuthService {
       const fetchProducts = await this.database.listDocuments(
         conf.DatabaseId,
         conf.product,
-        [Query.equal("productOwner", userId)]
+        [Query.equal("productOwner", userId),Query.limit(1000)]
       );
 
       if (!fetchProducts) throw error;
 
+      console.log(fetchProducts);
+      
       return fetchProducts.documents;
     } catch (error) {
       console.log(error);
@@ -348,6 +350,7 @@ export class AuthService {
 
   async getCustomers(userId, dateRange) {
     try {
+      console.log(dateRange);
       
       const filters = [
         Query.equal("ownerId", userId),
@@ -362,10 +365,12 @@ export class AuthService {
             Query.greaterThanEqual('$createdAt',dateRange[0]),
           );
         } else if (dateRange) {
+          const endDate = endOfDay(dateRange)
+          console.log(new Date(endDate.getTime() + (endDate.getTimezoneOffset() * 60000)).toISOString());
           
           filters.push(
             Query.greaterThanEqual('$createdAt',dateRange),
-            Query.lessThanEqual('date',endOfDay(dateRange))
+            Query.lessThanEqual('date',new Date(endDate.getTime() + (endDate.getTimezoneOffset() * 60000)).toISOString())
      
           );
         }
@@ -377,7 +382,7 @@ export class AuthService {
         filters
       );
   
-      return getCustomers.documents; // Return the array of customer documentswwwwwwwwwwwwwwwwwwwwwwwwwwwwwww
+      return getCustomers.documents; // Return the array of customer documents
     } catch (error) {
       console.error("Error fetching customers:", error);
       return []; // Return an empty array or handle it based on your app's needs
