@@ -26,7 +26,7 @@ import { format } from 'date-fns';
 
 // Quantity Counter component for reusability
 const QuantityCounter = ({ index, quantity, onIncrease, onDecrease }) => (
-  <div className="flex items-center gap-2 dark:bg-neutral-950 bg-zinc-100">
+  <div className="flex items-center gap-2 dark:bg-neutral-950 bg-zinc-100 h-fit w-fit">
     <div className='bg-violet-600 p-1 rounded-md text-zinc-100 transition-all duration-150 hover:bg-violet-500 cursor-pointer'
       onClick={() => onDecrease(index)}
     >
@@ -219,7 +219,7 @@ const Billing = () => {
                 <Loader />
               ) : (
                 allProducts?.map((product, index) => (
-                  <div key={product.$id} className="flex dark:text-zinc-200  tracking-tight font-medium items-center justify-between px-2 py-2  border-b last:border-0">
+                  <div key={product.$id} className="grid grid-cols-6 items-center text-center dark:text-zinc-200  tracking-tight font-medium  px-2 py-2  border-b last:border-0">
                     <label className="flex items-center space-x-2">
                       <input type="checkbox" className="hidden peer" onChange={(e) => handleCheckboxChange(product, index, e.target.checked)} />
                       <span className="w-5 h-5 bg-transparent border-2 border-zinc-300 rounded text-transparent  peer-checked:text-violet-500  flex items-center justify-center transition-all">
@@ -227,8 +227,8 @@ const Billing = () => {
                       </span>
                     </label>
 
-                    <img src={product.productImage} width={50} alt={product.productName} className="rounded-full" />
-                    <div>{product.productName}</div>
+                    <img src={product.productImage} alt={product.productName} className="rounded-full aspect-square w-[50px] object-cover" />
+                    <div className='text-wrap col-span-2'>{product.productName}</div>
                     <div>₹{product.price}</div>
                     <QuantityCounter
                       index={index}

@@ -8,7 +8,7 @@ export const columns = (fetchData)=> [
     header: "Image",
     accessorKey: "productImage",  // Ensure this key matches your data's image field
     cell: ({ getValue }) => (
-      <img src={getValue()} alt="public/assets/placeholder.svg" width={50} className=" object-cover rounded-full" />
+      <img src={getValue()} alt="public/assets/placeholder.svg" width={50}  className=" object-cover rounded-full aspect-square" />
     ),  // Render image
   },
   {
