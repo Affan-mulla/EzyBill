@@ -42,9 +42,9 @@ const Customer = () => {
       { isLoading ? (
         <Loader />
       ) : (
-        <Card className='h-full md:px-8 md:py-5 px-4 py-3 w-full '>
-        <CardTitle className='md:text-3xl text-2xl tracking-tight'>Customers</CardTitle>
-        <CardContent className=''>
+        <Card className='h-full md:px-8 md:py-5 px-2 py-3 w-full '>
+        <CardTitle className='md:text-3xl text-2xl tracking-tight px-2'>Customers</CardTitle>
+        <CardContent>
           
             <DataTable 
               columns={customerColumn} 

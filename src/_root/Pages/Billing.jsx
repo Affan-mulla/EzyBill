@@ -244,7 +244,7 @@ const Billing = () => {
 
 
 
-          <div className="w-full flex gap-2 justify-center items-center">
+          <div className="w-full flex gap-2  items-center md:flex-nowrap flex-wrap">
             <div className='min-w-fit'>
               <label className="flex items-center space-x-2">
                 <input type="checkbox" className="hidden peer" onClick={() => setTax(!tax)} />
@@ -255,7 +255,7 @@ const Billing = () => {
               </label>
             </div>
 
-            <div className='w-full flex gap-4 justify-end md:justify-start'>
+            <div className=' flex gap-4 justify-end md:justify-start '>
               <div className='px-4 py-2 cursor-pointer dark:bg-neutral-950 rounded-md border' onClick={handleReset}>Cancel</div>
               <Button type="submit" size="lg">{isPending ? (<Loader />) : 'Save'}</Button>
               <div onClick={handlePrint}  className='bg-violet-600  rounded-md text-zinc-50 text-center hover:bg-violet-800 transition-all duration-150 px-4 flex justify-center items-center font-medium cursor-pointer'>{isPending ? (<Loader/> ): "Print & Save"}</div>

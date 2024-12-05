@@ -117,7 +117,7 @@ const Dashboard = () => {
             <img src="public/assets/icons8-lock-80.png" alt="" width={150}/>  
           </div>
           <div className='flex z-50 border-2 dark:border border-blue-300 dark:bg-violet-950 bg-blue-400 h-full w-full relative dark:bg-opacity-30 bg-opacity-30 rounded-md justify-center items-center '>
-            <h1 className='text-3xl font-bold tracking-tight dark:text-zinc-50 drop-shadow-xl text-neutral-950'>
+            <h1 className='text-3xl font-bold tracking-tight dark:text-zinc-50 drop-shadow-xl text-neutral-950 text-center'>
               Buy the premium to get access of Dashboard.
             </h1>
           </div>
