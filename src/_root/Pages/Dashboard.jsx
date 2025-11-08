@@ -1,129 +1,108 @@
-
-import DashboardPage from '@/components/Dashboard/Dash';
 import ProfileNotify from '@/components/Shared/ProfileNotify';
-import { Card, CardContent, CardFooter, CardTitle } from '@/components/ui/card';
+import AreaChart from '@/components/Dashboard/AreaChart';
+import Recent from '@/components/Dashboard/Recent';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { DatePickerWithPresets } from '@/components/ui/DatePicker';
-import { useUserContext } from '@/Context/AuthContext';
-import { useGetCustomers, useRecentSales } from '@/lib/Query/queryMutation';
-import { IconEyeDollar, IconWorldDollar } from '@tabler/icons-react';
-import React, { useEffect, useState } from 'react';
 
 const Dashboard = () => {
-  const { user } = useUserContext()
-  const [dateRange, setDateRange] = useState('all'); // Default to 'all'
-  const { data, isLoading, refetch, isFetching } = useGetCustomers(user?.id, dateRange);
-  const [premium, setPremium] = useState(false)
+  // Mock data for summary statistics
+  const summaryStats = [
+    { title: 'Total Revenue', value: '$45,231.89', change: '+20.1% from last month' },
+    { title: 'Subscriptions', value: '+2,350', change: '+180.1% from last month' },
+    { title: 'Sales', value: '12,234', change: '+19% from last month' },
+    { title: 'Active Now', value: '573', change: '+3 since last hour' },
+  ];
 
+  // Mock data for the AreaChart component
+  const chartData = [
+    { name: 'Jan', total: 4000 },
+    { name: 'Feb', total: 3000 },
+    { name: 'Mar', total: 2000 },
+    { name: 'Apr', total: 2780 },
+    { name: 'May', total: 1890 },
+    { name: 'Jun', total: 2390 },
+    { name: 'Jul', total: 3490 },
+    { name: 'Aug', total: 4200 },
+    { name: 'Sep', total: 3800 },
+    { name: 'Oct', total: 4500 },
+    { name: 'Nov', total: 3000 },
+    { name: 'Dec', total: 5000 },
+  ];
 
-
-
-
-  const changeDate = (newDate) => {
-    if (newDate) {
-      setDateRange(newDate);
-    } else {
-      setDateRange('all'); // Reset to 'all' if the date is null
-    }
+  // Placeholder function for date picker change
+  const handleDateChange = (date) => {
+    console.log('Selected date range:', date);
+    // In a real application, this would trigger data fetching or filtering
   };
-  useEffect(() => {
-
-    refetch();
-
-  }, [dateRange]);
-
-
-
-  let totalRevenue = 0;
-  let totalSale = 0;
-  let products = [];
-  let topSellingProduct
-  const getSale = (data) => {
-
-
-
-    data?.map((row) => {
-      products.push(...JSON.parse(row.productPurchased))
-    })
-
-
-    products.map((row) => {
-
-      totalSale += row.quantity
-    })
-
-
-
-  }
-  getSale(data)
-
-  const productSales = products.reduce((acc, product) => {
-    if (!acc[product.$id]) {
-      acc[product.$id] = {
-        productName: product.productName,
-        price: product.price,
-        productImage: product.productImage,
-        totalStockSold: 0,
-        timesSold: 0
-      };
-    }
-    // Increment the count of times sold and sum stock
-    acc[product.$id].totalStockSold += product.Stock;
-    acc[product.$id].timesSold += product.quantity;
-
-    return acc;
-  }, {});
-
-  if (productSales) {
-    const sortedProducts = Object.values(productSales).sort((a, b) => {
-      // First sort by timesSold in descending order, then by totalStockSold
-      if (b.timesSold === a.timesSold) {
-        return b.totalStockSold - a.totalStockSold;
-      }
-      return b.timesSold - a.timesSold;
-    });
-
-    // Step 3: The top-selling product is the one with the highest times sold (and highest quantity if there's a tie)
-    topSellingProduct = sortedProducts[0];
-
-  }
-
-
-
-
-  data?.map((row) => {
-    totalRevenue += row.totalSpent
-  })
-
-
-
 
   return (
+    <div className='min-h-screen w-full p-4 md:p-8 dark:bg-neutral-950 flex flex-col gap-6'>
+      {/* Header Section */}
+      <div className='flex w-full justify-between items-center mb-4'>
+        <h1 className='text-3xl font-bold tracking-tight'>Dashboard</h1>
+        <div className='flex items-center gap-2'>
+          <DatePickerWithPresets onChangeDate={handleDateChange} />
+          <ProfileNotify />
+        </div>
+      </div>
 
-    premium ?
-      (
-        <div className='min-h-screen w-full md:px-8 px-4 py-3 dark:bg-neutral-950' >
-          <div className='h-full w-full'>
-            <div className='flex w-full justify-between items-center'>
-              <ProfileNotify className='w-[50px]' />
-              <DatePickerWithPresets onChangeDate={changeDate} />
+      {/* Summary Statistics Section */}
+      <div className='grid gap-4 md:grid-cols-2 lg:grid-cols-4'>
+        {summaryStats.map((stat, index) => (
+          <Card key={index}>
+            <CardHeader className='p-4 pb-0'>
+              <CardTitle className='text-sm font-medium'>
+                {stat.title}
+              </CardTitle>
+            </CardHeader>
+            <CardContent className='p-4 pt-2'>
+              <div className='text-2xl font-bold'>{stat.value}</div>
+              <p className='text-xs text-muted-foreground'>
+                {stat.change}
+              </p>
+            </CardContent>
+          </Card>
+        ))}
+      </div>
+
+      {/* Main Charts and Recent Activity Section */}
+      <div className='grid gap-4 lg:grid-cols-7'>
+        {/* Overview Chart */}
+        <Card className='col-span-4'>
+          <CardHeader className='p-4 pb-0'>
+            <CardTitle className='text-sm font-medium'>Overview</CardTitle>
+          </CardHeader>
+          <CardContent className='p-4'>
+            <AreaChart data={chartData} />
+          </CardContent>
+        </Card>
+
+        {/* Recent Sales Activity */}
+        <Card className='col-span-3'>
+          <CardHeader className='p-4 pb-0'>
+            <CardTitle className='text-sm font-medium'>Recent Sales</CardTitle>
+          </CardHeader>
+          <CardContent className='p-4'>
+            <Recent />
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Second Chart Placeholder Section */}
+      <div className='grid gap-4'>
+        <Card>
+          <CardHeader className='p-4 pb-0'>
+            <CardTitle className='text-sm font-medium'>Detailed Sales Trends</CardTitle>
+          </CardHeader>
+          <CardContent className='p-4'>
+            <div className='h-[200px] flex items-center justify-center text-muted-foreground'>
+              {/* This is a placeholder for a second chart, e.g., a BarChart or LineChart */}
+              Placeholder for another chart component (e.g., from src/components/ui/chart.jsx)
             </div>
-
-            <DashboardPage totalRevenue={totalRevenue} totalSale={totalSale} topSelling={topSellingProduct} data={data} dateRange={dateRange} />
-          </div>
-        </div>
-      ) : (
-        <div className='h-screen w-full px-8 py-5'>
-          <div className='z-10 absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 '>
-            <img src="public/assets/icons8-lock-80.png" alt="" width={150}/>  
-          </div>
-          <div className='flex z-50 border-2 dark:border border-blue-300 dark:bg-violet-950 bg-blue-400 h-full w-full relative dark:bg-opacity-30 bg-opacity-30 rounded-md justify-center items-center '>
-            <h1 className='text-3xl font-bold tracking-tight dark:text-zinc-50 drop-shadow-xl text-neutral-950 text-center'>
-              Buy the premium to get access of Dashboard.
-            </h1>
-          </div>
-        </div>
-      )
-
+          </CardContent>
+        </Card>
+      </div>
+    </div>
   );
 };
 
