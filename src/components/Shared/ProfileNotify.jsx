@@ -32,10 +32,10 @@ const ProfileNotify = ({ className }) => {
 
 
     return (
-        <div className='flex justify-center items-center gap-6 '>
+        <div className='flex items-center gap-4'>
             <div>
                 <DropdownMenu>
-                    <DropdownMenuTrigger className=' rounded-full'>
+                    <DropdownMenuTrigger className=' rounded-full '>
                         <img src={user.imageUrl || 'public/assets/ProfilePlaceholder.svg'} className={`${className} rounded-full`} alt="file" />
                     </DropdownMenuTrigger>
                     <DropdownMenuContent>
@@ -68,11 +68,11 @@ const ProfileNotify = ({ className }) => {
                     </PopoverTrigger>
                     <PopoverContent>
                         {lowStock.length > 0 ?
-                        lowStock?.map((row) => (
-                            <><div className='text-sm py-2 dark:text-zinc-300 text-neutral-800'>{row.productName} is running Out of Stock. Stock:{row.Stock}</div>
-                                <hr></hr>
-                            </>
-                        )) : (<p>Nothing To Show.</p>)}
+                            lowStock?.map((row) => (
+                                <><div className='text-sm py-2 dark:text-zinc-300 text-neutral-800'>{row.productName} is running Out of Stock. Stock:{row.Stock}</div>
+                                    <hr></hr>
+                                </>
+                            )) : (<p>Nothing To Show.</p>)}
                     </PopoverContent>
                 </Popover>
 

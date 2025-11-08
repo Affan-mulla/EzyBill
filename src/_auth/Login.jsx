@@ -6,7 +6,7 @@ import Loader from '@/components/ui/Loader'
 import { Spotlight } from '@/components/ui/spotlight'
 import { useUserContext } from '@/Context/AuthContext';
 import { useToast } from '@/hooks/use-toast';
-import {  useSignInAccount } from '@/lib/Query/queryMutation';
+import { useSignInAccount } from '@/lib/Query/queryMutation';
 import React from 'react'
 import { useForm } from 'react-hook-form';
 import { Link, useNavigate } from 'react-router-dom';
@@ -35,8 +35,7 @@ const Login = () => {
       }
 
       const isLoggedIn = await checkAuthUser();
-
-     
+      
 
       if (isLoggedIn) {
         navigate('/')
@@ -54,7 +53,7 @@ const Login = () => {
 
   return (
     <div className='h-screen flex justify-center items-center'>
-      {GridBackgroundDemo()}
+      <GridBackgroundDemo />
       <Spotlight />
       <form onSubmit={handleSubmit(onSubmit)} className=' absolute md:max-w-[25rem] max-w-[20rem] w-full bg-neutral-950 border-[1px] border-neutral-500 text-white p-5 rounded-md flex flex-col gap-2'>
 
