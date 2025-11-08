@@ -177,7 +177,7 @@ const Billing = () => {
 
 
   return (
-    <div className="flex min-h-screen flex-col dark:bg-neutral-950 bg-zinc-50  gap-4 sm:flex-row px-4 py-4 md:px-8">
+    <div className="flex h-full flex-col dark:bg-neutral-950 bg-zinc-50  gap-4 sm:flex-row px-4 py-4 md:px-8">
       <div className="flex-[2]  flex-col w-full p-4 md:py-5 rounded-md border">
         <h1 className="md:text-3xl text-2xl tracking-tight mb-4">Invoice Details</h1>
         <form className="flex flex-col gap-4" onSubmit={handleSubmit(onSubmit)}>

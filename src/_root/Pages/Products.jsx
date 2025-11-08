@@ -9,16 +9,7 @@ import { Link } from 'react-router-dom'
 
 const Products = () => {
   return (
-    <div className='min-h-screen h-full flex md:px-8 px-4 py-4 w-full dark:bg-neutral-950   flex-col gap-4 '>
-      <div className=' flex md:justify-between w-full gap-4 items-center'>
-        
-        <ProfileNotify className={'w-[70px] md:w-[50px]'}/>
-        <div className='flex w-full gap-3 justify-end items-center h-fit'>
-          <Link to={`/add-product`}>
-            <Button variant='default' className='py-0 md:px-4 px-2' size='sm'><IconCircleDashedPlus className='mr-2'/> Add Product</Button>
-          </Link>
-        </div>
-      </div>
+    <div className=' h-full flex md:px-8 px-4 py-4 w-full dark:bg-neutral-950   flex-col gap-4 '>
 
       <div className='flex flex-col h-auto gap-4 '>
         
@@ -37,4 +28,4 @@ const Products = () => {
   )
 }
 
-export default Products
+export default Products 

@@ -60,7 +60,7 @@ const { mutateAsync: logout, isPending: logingOut} = useLogout()
 
 
   return (
-    <div className=' h-screen flex px-4 md:px-14 md:py-6 py-3 w-full dark:bg-neutral-950'>
+    <div className=' flex px-4 md:px-10 md:py-2 py-3 w-full dark:bg-neutral-950'>
       {user.id !== '' ? (
         <Card className='w-full h-full'>
           <div className='h-full w-full flex px-6 py-4  border rounded-md  flex-col gap-4'>

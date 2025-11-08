@@ -1,84 +1,133 @@
-import { useUserContext } from '@/Context/AuthContext'
-import React from 'react'
-import { Link } from 'react-router-dom'
+import { useUserContext } from "@/Context/AuthContext";
+import { useTheme } from "@/Context/ThemeProvider";
+import React from "react";
+import { Link } from "react-router-dom";
 import {
-    Popover,
-    PopoverContent,
-    PopoverTrigger,
-} from "@/components/ui/popover"
-import { IconInvoice, IconLogout, IconNotification, IconSettings } from '@tabler/icons-react'
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
 import {
-    DropdownMenu,
-    DropdownMenuContent,
-    DropdownMenuItem,
-    DropdownMenuLabel,
-    DropdownMenuSeparator,
-    DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
-import { useGetProduct, useLogout } from '@/lib/Query/queryMutation'
-import Loader from '../ui/Loader'
-
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import {
+  IconInvoice,
+  IconLogout,
+  IconNotification,
+  IconSettings,
+  IconSun,
+  IconMoon,
+  IconDeviceDesktop,
+} from "@tabler/icons-react";
+import { useGetProduct, useLogout } from "@/lib/Query/queryMutation";
+import Loader from "../ui/Loader";
 
 const ProfileNotify = ({ className }) => {
-    const { user } = useUserContext()
-    const { mutateAsync, isPending } = useLogout()
-    const { data } = useGetProduct(user.id)
+  const { user } = useUserContext();
+  const { setTheme } = useTheme();
+  const { mutateAsync, isPending } = useLogout();
+  const { data } = useGetProduct(user.id);
 
-    let lowStock = []
-    data?.forEach((row) => {
-        if (row.Stock <= 10) lowStock.push(row)
-    })
+  const lowStock = data?.filter((row) => row.Stock <= 10) || [];
 
+  return (
+    <div className="flex items-center gap-5">
+      {/* Notifications */}
+      <Popover>
+        <PopoverTrigger className="relative flex justify-center items-center hover:bg-accent/60 p-2 rounded-lg transition-colors">
+          <IconNotification className="w-5 h-5 text-muted-foreground hover:text-foreground transition-colors" />
+          {lowStock.length > 0 && (
+            <span className="absolute top-1.5 right-1.5 flex items-center justify-center size-2.5 rounded-full bg-red-500 animate-pulse" />
+          )}
+        </PopoverTrigger>
+        <PopoverContent
+          align="end"
+          className="w-64 bg-popover border border-border shadow-md rounded-xl p-3"
+        >
+          <h4 className="text-sm font-medium mb-2 text-foreground">
+            Low Stock Alerts
+          </h4>
+          <div className="space-y-2 max-h-48 overflow-y-auto">
+            {lowStock.length > 0 ? (
+              lowStock.map((row) => (
+                <div
+                  key={row.id}
+                  className="text-sm text-muted-foreground bg-muted/30 p-2 rounded-md hover:bg-muted/50 transition-colors"
+                >
+                  <span className="font-medium text-foreground">
+                    {row.productName}
+                  </span>{" "}
+                  – only <b>{row.Stock}</b> left.
+                </div>
+              ))
+            ) : (
+              <p className="text-sm text-muted-foreground">No alerts.</p>
+            )}
+          </div>
+        </PopoverContent>
+      </Popover>
 
+      {/* Profile + Theme */}
+      <DropdownMenu>
+        <DropdownMenuTrigger className="rounded-full focus:outline-none ring-0">
+          <img
+            src={user.imageUrl || "/assets/ProfilePlaceholder.svg"}
+            className={`${className} rounded-full border border-border hover:scale-105 transition-transform`}
+            alt="profile"
+          />
+        </DropdownMenuTrigger>
+        <DropdownMenuContent align="end" className="w-52">
+          <DropdownMenuLabel className="text-sm">My Account</DropdownMenuLabel>
+          <DropdownMenuSeparator />
 
-    return (
-        <div className='flex items-center gap-4'>
-            <div>
-                <DropdownMenu>
-                    <DropdownMenuTrigger className=' rounded-full '>
-                        <img src={user.imageUrl || 'public/assets/ProfilePlaceholder.svg'} className={`${className} rounded-full`} alt="file" />
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent>
-                        <DropdownMenuLabel>My Account</DropdownMenuLabel>
-                        <DropdownMenuSeparator />
-                        <DropdownMenuItem>
-                            <Link to={'/billing'} className='flex items-center gap-1 w-full'><IconInvoice /> <p>Billing</p></Link>
-                        </DropdownMenuItem>
+          <DropdownMenuItem asChild>
+            <Link to="/billing" className="flex items-center gap-2 w-full">
+              <IconInvoice size={18} /> Billing
+            </Link>
+          </DropdownMenuItem>
+          <DropdownMenuItem asChild>
+            <Link to="/setting" className="flex items-center gap-2 w-full">
+              <IconSettings size={18} /> Settings
+            </Link>
+          </DropdownMenuItem>
 
-                        <DropdownMenuItem>
-                            <Link to={'/setting'} className='flex w-full items-center gap-1'><IconSettings /> <p>Setting</p></Link>
-                        </DropdownMenuItem>
-                        <DropdownMenuItem>
-                            <IconLogout onClick={() => mutateAsync()} /> <p>{isPending ? (<Loader />) : "Logout"}</p>
-                        </DropdownMenuItem>
-                    </DropdownMenuContent>
-                </DropdownMenu>
-            </div>
+          {/* Theme Switch */}
+          <DropdownMenuSeparator />
+          <DropdownMenuLabel className="text-xs text-muted-foreground">
+            Theme
+          </DropdownMenuLabel>
+          <DropdownMenuItem onClick={() => setTheme("light")}>
+            <IconSun size={18} className="mr-2" /> Light
+          </DropdownMenuItem>
+          <DropdownMenuItem onClick={() => setTheme("dark")}>
+            <IconMoon size={18} className="mr-2" /> Dark
+          </DropdownMenuItem>
+          <DropdownMenuItem onClick={() => setTheme("system")}>
+            <IconDeviceDesktop size={18} className="mr-2" /> System
+          </DropdownMenuItem>
 
-            <div>
-                <Popover>
-                    <PopoverTrigger className='flex justify-center items-center'>
-                        <IconNotification />
-                        <div className={`${lowStock.length == 0 && 'hidden'} relative right-3 bottom-[4px]`}>
-                            <span className="flex size-3 items-center justify-center rounded-full bg-red-500 dark:bg-red-500" aria-label="notification">
-                                <span className="size-3 animate-ping rounded-full bg-red-500 motion-reduce:animate-none dark:bg-red-500">
-                                </span>
-                            </span>
-                        </div>
-                    </PopoverTrigger>
-                    <PopoverContent>
-                        {lowStock.length > 0 ?
-                            lowStock?.map((row) => (
-                                <><div className='text-sm py-2 dark:text-zinc-300 text-neutral-800'>{row.productName} is running Out of Stock. Stock:{row.Stock}</div>
-                                    <hr></hr>
-                                </>
-                            )) : (<p>Nothing To Show.</p>)}
-                    </PopoverContent>
-                </Popover>
+          <DropdownMenuSeparator />
+          <DropdownMenuItem
+            onClick={() => mutateAsync()}
+            className="text-red-500 hover:text-red-600"
+          >
+            {isPending ? (
+              <Loader />
+            ) : (
+              <>
+                <IconLogout size={18} /> Logout
+              </>
+            )}
+          </DropdownMenuItem>
+        </DropdownMenuContent>
+      </DropdownMenu>
+    </div>
+  );
+};
 
-            </div>
-        </div>
-    )
-}
-
-export default ProfileNotify
+export default ProfileNotify;

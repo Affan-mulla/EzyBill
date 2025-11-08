@@ -33,12 +33,7 @@ const Customer = () => {
   }, [dateRange]); // Refetch when date range or user changes
 
   return (
-    <div className='min-h-screen h-full flex md:px-8 px-4 py-4 w-full dark:bg-neutral-950 flex-col gap-4 items-center'>
-      <div className='h-fit flex md:justify-between w-full gap-4 items-center'>
-        
-        <ProfileNotify className={'w-[50px]'}/>
-      </div>
-
+    <div className=' h-full flex md:px-8 px-4 py-4 w-full dark:bg-neutral-950 flex-col gap-4 items-center'>
       { isLoading ? (
         <Loader />
       ) : (
