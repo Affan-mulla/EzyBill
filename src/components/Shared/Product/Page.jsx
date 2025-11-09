@@ -1,31 +1,49 @@
-import { useEffect, useState } from "react";
-import { columns } from "./Coloumn";
-import { DataTable } from "./DataTable";
 import { useUserContext } from "@/Context/AuthContext";
 import { useGetProduct } from "@/lib/Query/queryMutation";
-import Loader from "@/components/ui/Loader";
+import { ProductTableSkeleton } from "@/components/ui/skeleton";
+import { DataTable } from "@/components/Shared/DataTable";
+import { columns } from "./Coloumn";
+import { AlertCircle } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { motion } from "framer-motion";
 
 const DemoPage = () => {
-  const [data, setData] = useState([]);
   const { user } = useUserContext();
-  const { data: allProducts, isLoading, refetch } = useGetProduct(user.id);  // `refetch` to be passed down
+  const { data: products, isLoading, error, refetch } = useGetProduct(user?.id);
 
-  console.log(allProducts);
-  
-  useEffect(() => {
-    if (allProducts) {
-      setData(allProducts);  // Assuming `allProducts` is an array of objects
-    }
-  }, [allProducts]);
+  if (error) {
+    return (
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        className="flex flex-col items-center justify-center py-12 gap-4"
+      >
+        <AlertCircle className="h-12 w-12 text-destructive" />
+        <h3 className="text-lg font-semibold">Failed to load products</h3>
+        <p className="text-sm text-muted-foreground">{error.message}</p>
+        <Button onClick={() => refetch()} variant="outline">
+          Try Again
+        </Button>
+      </motion.div>
+    );
+  }
 
   if (isLoading) {
-    return <Loader />; // Handle loading state
+    return <ProductTableSkeleton rows={5} />;
   }
 
   return (
-    <div className="container mx-auto">
-      {/* Pass down refetch as fetchData */}
-      <DataTable columns={columns} data={data} fetchData={refetch} filterName={'productName'} dateFilter={false} />
+    <div className="w-full">
+      <DataTable
+        columns={columns}
+        data={products || []}
+        isLoading={isLoading}
+        filterColumn="productName"
+        filterPlaceholder="Search products by name..."
+        showDateFilter={false}
+        pageSize={10}
+        emptyMessage="No products found. Start by adding your first product!"
+      />
     </div>
   );
 };

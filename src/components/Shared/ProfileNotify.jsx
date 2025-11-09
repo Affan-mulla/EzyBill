@@ -115,7 +115,7 @@ const ProfileNotify = ({ className }) => {
           <DropdownMenuItem
             onClick={() => mutateAsync()}
             className="text-red-500 hover:text-red-600"
-          >
+          > 
             {isPending ? (
               <Loader />
             ) : (

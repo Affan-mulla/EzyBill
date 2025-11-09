@@ -1,10 +1,14 @@
-"use client"
+/**
+ * Enhanced Customer Column Definitions
+ * Features better formatting, accessibility, and visual feedback
+ */
 
+import { formatCurrency, formatDateTime } from '@/lib/utils/format';
+import { Badge } from '@/components/ui/badge';
 import { ID } from "appwrite";
-import Actions from "./../Product/Actions";
-import { formatCurrency, formatDateTime } from "@/lib/utils/format";
+import Actions from "../Product/Actions";
 
-export const customerColumn = [
+export const customerColumns = [
   {
     header: "Invoice ID",
     accessorKey: "InvoiceNo",
@@ -18,7 +22,9 @@ export const customerColumn = [
     header: "Customer Name",
     accessorKey: "customerName",
     cell: ({ getValue }) => (
-      <div className="font-medium text-foreground">{getValue()}</div>
+      <div className="font-medium text-foreground">
+        {getValue()}
+      </div>
     ),
   },
   {
@@ -30,20 +36,23 @@ export const customerColumn = [
         return (
           <div className="flex flex-col gap-1">
             {products.map((product) => (
-              <div key={ID.unique()} className="text-sm text-muted-foreground">
+              <div
+                key={ID.unique()}
+                className="text-sm text-muted-foreground"
+              >
                 <span className="font-medium text-foreground">
                   {product.productName}
                 </span>
                 {" × "}
-                <span className="font-semibold">{product.quantity}</span>
+                <span className="font-semibold">
+                  {product.quantity}
+                </span>
               </div>
             ))}
           </div>
         );
       } catch (error) {
-        return (
-          <span className="italic text-muted-foreground/70">Invalid data</span>
-        );
+        return <span className="italic text-muted-foreground">Invalid data</span>;
       }
     },
   },
@@ -52,10 +61,17 @@ export const customerColumn = [
     accessorKey: "paymentMethod",
     cell: ({ getValue }) => {
       const method = getValue();
+      const methodColors = {
+        cash: "default",
+        card: "secondary",
+        upi: "success",
+        online: "info",
+      };
+
       return (
-        <div className="inline-flex items-center rounded-md px-2.5 py-0.5 text-xs font-semibold bg-secondary text-secondary-foreground">
+        <Badge variant={methodColors[method?.toLowerCase()] || "default"}>
           {method}
-        </div>
+        </Badge>
       );
     },
   },

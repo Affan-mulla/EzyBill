@@ -1,9 +1,13 @@
-"use client"
+/**
+ * Enhanced Product Column Definitions
+ * Features better formatting, accessibility, and visual feedback
+ */
 
-import { formatCurrency } from "@/lib/utils/format";
-import Actions from "./Actions";
+import { formatCurrency } from '@/lib/utils/format';
+import { Badge } from '@/components/ui/badge';
+import Actions from './Actions';
 
-export const columns = [
+export const productColumns = [
   {
     header: "Image",
     accessorKey: "productImage",
@@ -12,12 +16,12 @@ export const columns = [
       return (
         <div className="relative h-12 w-12 overflow-hidden rounded-lg border">
           <img
-            src={imageUrl || "/assets/placeholder.svg"}
+            src={imageUrl || '/assets/placeholder.svg'}
             alt="Product"
             className="h-full w-full object-cover transition-transform hover:scale-110"
             loading="lazy"
             onError={(e) => {
-              e.target.src = "/assets/placeholder.svg";
+              e.target.src = '/assets/placeholder.svg';
             }}
           />
         </div>
@@ -28,7 +32,9 @@ export const columns = [
     header: "Product Name",
     accessorKey: "productName",
     cell: ({ getValue }) => (
-      <div className="font-medium text-foreground">{getValue()}</div>
+      <div className="font-medium text-foreground">
+        {getValue()}
+      </div>
     ),
   },
   {
@@ -39,9 +45,9 @@ export const columns = [
       return (
         <div
           className="max-w-xs truncate text-sm text-muted-foreground"
-          title={description}
+          title={description} // Show full text on hover
         >
-          {description || <span className="italic text-muted-foreground/70">No description</span>}
+          {description || <span className="italic">No description</span>}
         </div>
       );
     },
@@ -51,17 +57,24 @@ export const columns = [
     accessorKey: "Stock",
     cell: ({ getValue }) => {
       const stock = getValue();
-      let className = "font-medium ";
+      let variant = "default";
+      let label = `${stock} units`;
 
       if (stock === 0) {
-        className += "text-destructive";
+        variant = "destructive";
+        label = "Out of stock";
       } else if (stock < 10) {
-        className += "text-yellow-600 dark:text-yellow-500";
+        variant = "warning";
+        label = `${stock} units (Low)`;
       } else {
-        className += "text-green-600 dark:text-green-500";
+        variant = "success";
       }
 
-      return <div className={className}>{stock} units</div>;
+      return (
+        <Badge variant={variant} className="font-medium">
+          {label}
+        </Badge>
+      );
     },
   },
   {
@@ -78,7 +91,11 @@ export const columns = [
     id: "actions",
     accessorKey: "$id",
     cell: ({ getValue, row }) => (
-      <Actions productId={getValue()} action="product" productData={row.original} />
+      <Actions
+        productId={getValue()}
+        action="product"
+        productData={row.original}
+      />
     ),
   },
 ];

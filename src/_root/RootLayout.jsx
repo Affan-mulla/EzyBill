@@ -6,7 +6,7 @@ import Navbar from "@/components/Shared/Navbar";
 const RootLayout = () => {
   
   return (
-    <div className="w-full min-h-screen flex bg-background text-foreground">
+    <div className="w-full min-h-screen flex text-foreground bg-card">
       <Sidebar />
       <main className="flex-1 transition-all duration-300 ease-in-out">
         <Navbar />

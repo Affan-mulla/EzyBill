@@ -34,7 +34,7 @@ const Sidebar = () => {
       {/* Sidebar */}
       <aside
         className={cn(
-          "fixed md:static left-0 top-0 md:h-auto bg-card/95 backdrop-blur-sm border-r border-border z-40 md:z-auto shadow-lg transition-all duration-300 ease-in-out flex flex-col",
+          "fixed md:static left-0 top-0 md:h-auto bg-card backdrop-blur-sm border-r border-border z-40 md:z-auto shadow-lg transition-all duration-300 ease-in-out flex flex-col",
           isMobileOpen
             ? "translate-x-0 h-screen"
             : "-translate-x-full md:translate-x-0",

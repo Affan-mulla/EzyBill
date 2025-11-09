@@ -3,7 +3,9 @@ import { DatePickerWithPresets } from "@/components/ui/DatePicker";
 import { Input } from "@/components/ui/input";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { flexRender, getCoreRowModel, getPaginationRowModel, useReactTable, getFilteredRowModel } from "@tanstack/react-table";
+import { PlusCircle } from "lucide-react";
 import { useState } from "react";
+import { Link } from "react-router-dom";
 
 export function DataTable({ columns, data, fetchData, filterName, DateChange, dateFilter }) {
   const [columnFilters, setColumnFilters] = useState(
@@ -31,7 +33,7 @@ export function DataTable({ columns, data, fetchData, filterName, DateChange, da
     setdate(newDate)
     DateChange(newDate)
   }
-console.log(data);
+  console.log(data);
 
 
   return (
@@ -46,6 +48,10 @@ console.log(data);
           className="max-w-sm"
         />
         {dateFilter ? (<DatePickerWithPresets onChangeDate={handleDate} />) : (<></>)}
+        <Button className='ml-auto'>
+          <PlusCircle size={20} className="mr-2" />
+          <Link to="/add-product">Add Product</Link>
+        </Button>
       </div>
       <div className="rounded-md border">
         <Table>
@@ -85,12 +91,12 @@ console.log(data);
             )}
           </TableBody>
         </Table>
-        
+
       </div>
       {dateFilter ? (<div className="px-2">
-          <p className="text-sm text-zinc-400">Disclaimer: Please note that all dates and times displayed are based on the ISO 8601 format.</p>
-        </div>) : (<></>)}
-      
+        <p className="text-sm text-zinc-400">Disclaimer: Please note that all dates and times displayed are based on the ISO 8601 format.</p>
+      </div>) : (<></>)}
+
       <div className="flex items-center justify-end space-x-2 py-4">
         <Button
           variant="outline"
