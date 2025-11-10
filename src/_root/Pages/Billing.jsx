@@ -21,25 +21,28 @@ import { useReactToPrint } from 'react-to-print';
 import { Toast } from '@/components/ui/toast';
 import { useNavigate } from 'react-router-dom';
 import { toast } from '@/hooks/use-toast';
-import { Card } from '@/components/ui/card';
-import { format } from 'date-fns';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { formatIST } from '@/lib/utils/format';
 
 // Quantity Counter component for reusability
 const QuantityCounter = ({ index, quantity, onIncrease, onDecrease }) => (
-  <div className="flex items-center gap-2 dark:bg-neutral-950 bg-zinc-100 h-fit w-fit">
-    <div className='bg-violet-600 p-1 rounded-md text-zinc-100 transition-all duration-150 hover:bg-violet-500 cursor-pointer'
+  <div className="flex items-center gap-2 bg-muted/50 rounded-md h-fit w-fit border border-border">
+    <button
+      type="button"
+      className='bg-primary p-1.5 rounded-l-md text-primary-foreground transition-all duration-200 hover:bg-primary/90 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed'
       onClick={() => onDecrease(index)}
+      disabled={quantity <= 1}
     >
-      <IconMinus />
-    </div>
-    <span className="px-2">{quantity}</span>
-    <div
-      className='bg-violet-600 p-1 rounded-md text-zinc-100 cursor-pointer hover:bg-violet-500 transition-all duration-150'
-      
+      <IconMinus size={16} strokeWidth={2.5} />
+    </button>
+    <span className="px-3 min-w-8 text-center text-sm font-semibold text-foreground">{quantity}</span>
+    <button
+      type="button"
+      className='bg-primary p-1.5 rounded-r-md text-primary-foreground transition-all duration-200 hover:bg-primary/90 active:scale-95'
       onClick={() => onIncrease(index)}
     >
-      <IconPlus />
-    </div>
+      <IconPlus size={16} strokeWidth={2.5} />
+    </button>
   </div>
 );
 
@@ -123,23 +126,23 @@ const Billing = () => {
     setInvoiceId(generateShortInvoiceId())
   }
   // Example date from Appwrite (stored in UTC)
-  const appwriteDate = new Date();
+  // Capture purchase date once when component mounts to avoid changing during edits
+  const [purchaseDate] = useState(() => new Date());
+  // Formatted IST string used for display & storage (authoritative value)
+  const istDate = formatIST(purchaseDate);
 
-  // Convert to local time zone (IST)
-  const istOffset = 5.5 * 60; // IST is UTC +5:30
-  const istDate = new Date(appwriteDate.getTime() + istOffset * 60000);
 
- 
 
   async function onSubmit(data) {
 
     const formData = {
-      ...data, // form data (e.g., customer name, purchase date, payment method)
-      total: total,
+      ...data,
+      total,
       paymentMethod: payment,
       invoiceId: invoiceID,
       userId: user.id,
-      selectedProducts: selectedRows
+      selectedProducts: selectedRows,
+      purchaseDate: purchaseDate.toISOString(), // optional raw ISO for querying/sorting
     };
 
     const savedCustomer = await saveCustomer(formData);
@@ -177,109 +180,162 @@ const Billing = () => {
 
 
   return (
-    <div className="flex h-full flex-col dark:bg-neutral-950 bg-zinc-50  gap-4 sm:flex-row px-4 py-4 md:px-8">
-      <div className="flex-[2]  flex-col w-full p-4 md:py-5 rounded-md border">
-        <h1 className="md:text-3xl text-2xl tracking-tight mb-4">Invoice Details</h1>
-        <form className="flex flex-col gap-4" onSubmit={handleSubmit(onSubmit)}>
-          <div className="flex-1">
-            <Label className="dark:text-zinc-400 text-neutral-800">Customer Name</Label>
-            <Input {...register("customerName", { required: true })} placeholder="Customer Name" />
-            {errors.customerName && <p className="text-red-500">Customer name is required.</p>}
-          </div>
-          <div className="flex gap-4">
-            <div className="flex-1">
-              <Label className="dark:text-zinc-400 text-neutral-800">Date of Purchase</Label>
-              <Input defaultValue={istDate.toISOString()} {...register('purchaseDate')} readOnly />
+    <div className="flex flex-col lg:flex-row gap-4 p-4 md:px-4 h-full w-full">
+      {/* LEFT: Billing Form */}
+      <Card className="flex-1 w-full overflow-hidden border border-border/60 shadow-md backdrop-blur-sm bg-card/90">
+        <CardHeader className="border-b border-border/60 pb-4">
+          <CardTitle className="text-xl font-semibold text-foreground">Invoice Details</CardTitle>
+          <CardDescription className="text-muted-foreground">
+            Create, review, and manage customer invoices
+          </CardDescription>
+        </CardHeader>
+
+        <CardContent className="p-6 space-y-6">
+          <form className="flex flex-col gap-6" onSubmit={handleSubmit(onSubmit)}>
+            {/* Customer Info */}
+            <div className="grid gap-4 sm:grid-cols-2">
+              <div className="flex flex-col gap-1">
+                <Label>Customer Name</Label>
+                <Input
+                  {...register("customerName", { required: true })}
+                  placeholder="Enter customer name"
+                  className="h-10 border-input focus:ring-2 focus:ring-ring"
+                />
+                {errors.customerName && (
+                  <p className="text-sm text-destructive">Customer name is required.</p>
+                )}
+              </div>
+
+              <div className="flex flex-col gap-1">
+                <Label>Date of Purchase</Label>
+                <Input
+                  defaultValue={istDate}
+                  {...register('purchaseDate')}
+                  readOnly
+                  className="h-10 border-input bg-muted/20 text-muted-foreground"
+                />
+              </div>
             </div>
 
-            <div className="flex-1">
-              <Label className="dark:text-zinc-400 text-neutral-800">Mode of Payment</Label>
-              <Select onValueChange={setPayment}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Payment method" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="Cash">Cash</SelectItem>
-                  <SelectItem value="Google Pay Upi">Google Pay Upi</SelectItem>
-                  <SelectItem value="Phone Pay Upi">Phone Pay Upi</SelectItem>
-                  <SelectItem value="Bharat Pay Upi">Bharat Pay Upi</SelectItem>
-                  <SelectItem value="Paytm">Paytm</SelectItem>
-                  <SelectItem value="Net Banking">Net Banking</SelectItem>
-                </SelectContent>
-              </Select>
-              {errors.paymentMethod && <p className="text-red-500">Payment method is required.</p>}
+            {/* Payment Section */}
+            <div className="grid gap-4 sm:grid-cols-2">
+              <div className="flex flex-col gap-1">
+                <Label>Payment Method</Label>
+                <Select onValueChange={setPayment}>
+                  <SelectTrigger className="h-10">
+                    <SelectValue placeholder="Select method" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {["Cash", "Google Pay UPI", "PhonePe UPI", "BharatPe UPI", "Paytm", "Net Banking"].map(
+                      (item) => (
+                        <SelectItem key={item} value={item}>
+                          {item}
+                        </SelectItem>
+                      )
+                    )}
+                  </SelectContent>
+                </Select>
+              </div>
             </div>
-          </div>
 
-          {/* Products Section */}
-          <div className="dark:bg-neutral-950 p-3 rounded-md border">
-            <h1 className="md:text-3xl text-2xl tracking-tight mb-4">Products</h1>
-            <Card className=" rounded-md border max-h-[300px] overflow-y-auto">
-              {isLoading ? (
-                <Loader />
-              ) : (
-                allProducts?.map((product, index) => (
-                  <div key={product.$id} className="grid grid-cols-6 items-center text-center dark:text-zinc-200  tracking-tight font-medium  px-2 py-2  border-b last:border-0">
-                    <label className="flex items-center space-x-2">
-                      <input type="checkbox" className="hidden peer" onChange={(e) => handleCheckboxChange(product, index, e.target.checked)} />
-                      <span className="w-5 h-5 bg-transparent border-2 border-zinc-300 rounded text-transparent  peer-checked:text-violet-500  flex items-center justify-center transition-all">
-                        <IconCheck className='font-bold'/>
-                      </span>
-                    </label>
+            {/* Product Selector */}
+            <div className="border border-border/60 rounded-lg overflow-hidden shadow-sm">
+              <div className="flex justify-between items-center px-4 py-3 bg-muted/40 border-b border-border/60">
+                <div>
+                  <h3 className="font-semibold text-foreground">Products</h3>
+                  <p className="text-xs text-muted-foreground">Select items for this invoice</p>
+                </div>
+                <span className="text-sm text-muted-foreground">{selectedRows.length} selected</span>
+              </div>
 
-                    <img src={product.productImage} alt={product.productName} className="rounded-full aspect-square w-[50px] object-cover" />
-                    <div className='text-wrap col-span-2'>{product.productName}</div>
-                    <div>₹{product.price}</div>
-                    <QuantityCounter
-                      index={index}
-                      quantity={quantities[index]}
-                      onIncrease={handleIncrease}
-                      onDecrease={handleDecrease}
-                    />
+              <div className="max-h-80 overflow-y-auto">
+                {isLoading ? (
+                  <div className="flex items-center justify-center h-40">
+                    <Loader />
                   </div>
-                ))
-              )}
-            </Card>
-          </div>
+                ) : (
+                  <div className="divide-y divide-border">
+                    {allProducts?.map((product, index) => (
+                      <div
+                        key={product.$id}
+                        className="grid grid-cols-5 items-center text-center py-3 hover:bg-accent/40 transition-colors"
+                      >
 
+                        <div className='flex justify-center'>
+                          <Checkbox
+                            checked={selectedRows.some(item => item.$id === product.$id)}
+                            onCheckedChange={(checked) => handleCheckboxChange(product, index, checked)}
+                          />
+                        </div>
+                        <img
+                          src={product.productImage}
+                          alt={product.productName}
+                          className="w-10 h-10 rounded-md object-cover border border-border"
+                        />
 
+                        <div className=" text-left truncate text-sm font-medium text-foreground">
+                          {product.productName}
+                        </div>
 
-          <div className="w-full flex gap-2  items-center md:flex-nowrap flex-wrap">
-            <div className='min-w-fit'>
-              <label className="flex items-center space-x-2">
+                        <div className="text-sm font-semibold">₹{product.price}</div>
+
+                        <QuantityCounter
+                          index={index}
+                          quantity={quantities[index]}
+                          onIncrease={handleIncrease}
+                          onDecrease={handleDecrease}
+                        />
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* Footer Actions */}
+            <div className="sticky bottom-0 bg-card/80 backdrop-blur-sm border-t border-border/60 py-4 flex flex-wrap justify-between items-center gap-4">
+              <label className="flex items-center gap-2 cursor-pointer">
                 <input type="checkbox" className="hidden peer" onClick={() => setTax(!tax)} />
-                <span className="w-5 h-5 bg-transparent border-2 border-zinc-200 rounded text-transparent peer-checked:text-violet-600 flex items-center justify-center transition-all">
-                  <IconCheck />
+                <span className="w-5 h-5 bg-background border border-input rounded flex items-center justify-center peer-checked:bg-primary peer-checked:text-primary-foreground transition">
+                  <IconCheck size={14} />
                 </span>
-                <p>Add Tax</p>
+                <span className="text-sm font-medium">Add Tax (18%)</span>
               </label>
-            </div>
 
-            <div className=' flex gap-4 justify-end md:justify-start '>
-              <div className='px-4 py-2 cursor-pointer dark:bg-neutral-950 rounded-md border' onClick={handleReset}>Cancel</div>
-              <Button type="submit" size="lg">{isPending ? (<Loader />) : 'Save'}</Button>
-              <div onClick={handlePrint}  className='bg-violet-600  rounded-md text-zinc-50 text-center hover:bg-violet-800 transition-all duration-150 px-4 flex justify-center items-center font-medium cursor-pointer'>{isPending ? (<Loader/> ): "Print & Save"}</div>
+              <div className="flex gap-3">
+                <div className='px-4 py-2 bg-background rounded-lg border border-border cursor-pointer hover:bg-background/60 select-none' onClick={handleReset}>
+                  Cancel
+                </div>
+                <Button type="submit">
+                  {isPending ? <Loader /> : 'Save Invoice'}
+                </Button>
+                <Button type="button" onClick={handlePrint} className="bg-primary hover:bg-primary/90">
+                  {isPending ? <Loader /> : 'Print & Save'}
+                </Button>
+              </div>
             </div>
-          </div>
-        </form>
+          </form>
+        </CardContent>
+      </Card>
+
+      {/* RIGHT: Invoice Preview */}
+      <div className="flex-1">
+        <InvoicePreview
+          ref={invoiceRef}
+          user={user}
+          selectedRows={selectedRows}
+          customerName={customerName}
+          paymentMethod={payment}
+          purchaseDate={istDate}
+          total={total}
+          subtotal={subtotal}
+          tax={Tax}
+          addTax={tax}
+          invoiceID={invoiceID}
+        />
       </div>
-
-      {/* Invoice Preview */}
-      <InvoicePreview
-        ref={invoiceRef}
-        user={user}
-        selectedRows={selectedRows}
-        customerName={customerName}
-        paymentMethod={payment}
-        purchaseDate={format(new Date(), "PPP")}
-        total={total}
-        subtotal={subtotal}
-        tax={Tax}
-        addTax={tax}
-        invoiceID={invoiceID}
-      />
-
     </div>
+
   );
 };
 

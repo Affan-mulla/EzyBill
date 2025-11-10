@@ -3,7 +3,7 @@
  * Features better formatting, accessibility, and visual feedback
  */
 
-import { formatCurrency, formatDateTime } from '@/lib/utils/format';
+import { formatCurrency, formatIST } from '@/lib/utils/format';
 import { Badge } from '@/components/ui/badge';
 import { ID } from "appwrite";
 import Actions from "../Product/Actions";
@@ -36,17 +36,10 @@ export const customerColumns = [
         return (
           <div className="flex flex-col gap-1">
             {products.map((product) => (
-              <div
-                key={ID.unique()}
-                className="text-sm text-muted-foreground"
-              >
-                <span className="font-medium text-foreground">
-                  {product.productName}
-                </span>
+              <div key={ID.unique()} className="text-sm text-muted-foreground">
+                <span className="font-medium text-foreground">{product.productName}</span>
                 {" × "}
-                <span className="font-semibold">
-                  {product.quantity}
-                </span>
+                <span className="font-semibold">{product.quantity}</span>
               </div>
             ))}
           </div>
@@ -61,15 +54,9 @@ export const customerColumns = [
     accessorKey: "paymentMethod",
     cell: ({ getValue }) => {
       const method = getValue();
-      const methodColors = {
-        cash: "default",
-        card: "secondary",
-        upi: "success",
-        online: "info",
-      };
 
       return (
-        <Badge variant={methodColors[method?.toLowerCase()] || "default"}>
+        <Badge variant={ "default" }>
           {method}
         </Badge>
       );
@@ -86,12 +73,20 @@ export const customerColumns = [
   },
   {
     header: "Date",
-    accessorKey: "date",
-    cell: ({ getValue }) => (
-      <div className="text-sm text-muted-foreground">
-        {formatDateTime(getValue())}
-      </div>
-    ),
+    accessorKey: "purchaseDate",
+    cell: ({ row, getValue }) => {
+      const raw = getValue() || row.original?.date || row.original?.purchaseDateISO;
+      let display = 'N/A';
+      console.log(row.original?.date);
+      
+      if (raw) {
+        // If raw looks like ISO (contains 'T'), format to IST string; else assume already formatted
+        display = typeof raw === 'string' && raw.includes('T') ? formatIST(raw) : raw;
+      }
+      return (
+        <div className="text-sm font-medium text-foreground">{display}</div>
+      );
+    },
   },
   {
     header: "Actions",

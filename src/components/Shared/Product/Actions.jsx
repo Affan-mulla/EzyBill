@@ -1,117 +1,114 @@
-import { useState } from 'react';
-import { MoreHorizontal, Edit, Trash2, Loader2 } from "lucide-react";
+import React from 'react';
+import { Loader2, Pen, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { Link, useNavigate } from 'react-router-dom';
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogHeader,
+  AlertDialogFooter,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
+import { Link } from 'react-router-dom';
 import { useDeleteCustomer, useDeleteProduct } from '@/lib/Query/queryMutation';
+import { toast } from '@/hooks/use-toast';
 import { useUserContext } from '@/Context/AuthContext';
 
-const Actions = ({ productId, action, productData, customerData }) => {
-  const [isDeleting, setIsDeleting] = useState(false);
-  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+const Actions = ({ productId, getData, action }) => {
   const { user } = useUserContext();
-  const navigate = useNavigate();
-  const { mutateAsync: deleteProduct } = useDeleteProduct();
-  const { mutateAsync: deleteCustomer } = useDeleteCustomer();
+  const { mutateAsync: deleteProductMutation } = useDeleteProduct();
+  const { mutateAsync: deleteCustomerMutation, isPending } = useDeleteCustomer();
 
-  const handleDelete = async () => {
-    setIsDeleting(true);
-    try {
-      if (action === 'product') {
-        await deleteProduct(productId);
-      } else {
-        await deleteCustomer(productId);
-      }
-    } finally {
-      setIsDeleting(false);
-      setShowDeleteConfirm(false);
+  const handleDeleteProduct = async () => {
+    const deleted = await deleteProductMutation(productId);
+    if (!deleted) {
+      return toast({
+        variant: "destructive",
+        title: "Oops! Something went wrong.",
+        description: "Try again later.",
+      });
     }
-  };  
+    await getData?.();
+    toast({
+      title: "Product deleted successfully.",
+    });
+  };
+
+  const handleDeleteCustomer = async () => {
+    const deleted = await deleteCustomerMutation(productId);
+    if (!deleted) {
+      return toast({
+        variant: "destructive",
+        title: "Oops! Something went wrong.",
+        description: "Try again later.",
+      });
+    }
+    toast({
+      title: "Customer deleted successfully.",
+    });
+  };
 
   return (
-    <>
-      <DropdownMenu>
-        <DropdownMenuTrigger asChild>
-          <Button variant="ghost" className="h-8 w-8 p-0" disabled={isDeleting}>
-            <span className="sr-only">Open menu</span>
-            {isDeleting ? (
-              <Loader2 className="h-4 w-4 animate-spin" />
+    <div className="flex items-center gap-1">
+      {/* Edit Button (only for product) */}
+      {action === "product" && (
+        <Link to={`/edit-product/${productId}`}>
+          <Button
+            variant="ghost"
+            size="icon"
+            className="text-muted-foreground hover:text-primary hover:bg-primary/10 transition-colors"
+          >
+            <Pen size={16} strokeWidth={2} />
+          </Button>
+        </Link>
+      )}
+
+      {/* Delete Button with Confirmation */}
+      <AlertDialog>
+        <AlertDialogTrigger asChild>
+          <Button
+            variant="ghost"
+            size="icon"
+            className="text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-colors"
+          >
+            {isPending ? (
+              <Loader2 className="animate-spin h-4 w-4 text-muted-foreground" />
             ) : (
-              <MoreHorizontal className="h-4 w-4" />
+              <Trash2 size={16} strokeWidth={2} />
             )}
           </Button>
-        </DropdownMenuTrigger>
-        <DropdownMenuContent align="end">
-          <DropdownMenuLabel>Actions</DropdownMenuLabel>
-          <DropdownMenuSeparator />
-          
-          {action === 'product' && (
-            <Link to={`/edit-product/${productId}`}>
-              <DropdownMenuItem>
-                <Edit className="mr-2 h-4 w-4" />
-                Edit
-              </DropdownMenuItem>
-            </Link>
-          )}
-          
-          <DropdownMenuItem
-            className="text-destructive focus:text-destructive"
-            onClick={() => setShowDeleteConfirm(true)}
-            disabled={isDeleting}
-          >
-            <Trash2 className="mr-2 h-4 w-4" />
-            Delete
-          </DropdownMenuItem>
-        </DropdownMenuContent>
-      </DropdownMenu>
+        </AlertDialogTrigger>
 
-      {/* Delete Confirmation Dialog */}
-      {showDeleteConfirm && (
-        <div className="fixed inset-0 z-100 flex items-center justify-center">
-          <div 
-            className="fixed inset-0 bg-background/80 backdrop-blur-sm"
-            onClick={() => !isDeleting && setShowDeleteConfirm(false)}a
-          />
-          <div className="relative z-100 w-full max-w-md p-6 bg-card border rounded-lg shadow-lg">
-            <h2 className="text-lg font-semibold mb-2">Are you sure?</h2>
-            <p className="text-sm text-muted-foreground mb-6">
-              This will permanently delete this {action === 'product' ? 'product' : 'customer record'}. 
-              This action cannot be undone.
-            </p>
-            <div className="flex justify-end gap-2">
-              <Button
-                variant="outline"
-                onClick={() => setShowDeleteConfirm(false)}
-                disabled={isDeleting}
-              >
-                Cancel
-              </Button>
-              <Button
-                variant="destructive"
-                onClick={handleDelete}
-                disabled={isDeleting}
-              >
-                {isDeleting ? (
-                  <>
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    Deleting...
-                  </>
-                ) : (
-                  'Delete'
-                )}
-              </Button>
-            </div>
-          </div>
-        </div>
-      )}
-    </>
+        <AlertDialogContent className="max-w-sm border border-border bg-card/95 backdrop-blur-sm shadow-lg">
+          <AlertDialogHeader>
+            <AlertDialogTitle className="text-lg font-semibold text-foreground">
+              Delete {action === "product" ? "Product" : "Customer"}
+            </AlertDialogTitle>
+            <AlertDialogDescription className="text-sm text-muted-foreground">
+              Are you sure you want to delete this {action}? This action cannot be undone and will permanently remove all related data.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter className="flex justify-end gap-2 pt-4">
+            <AlertDialogCancel className="border-border bg-muted/40 hover:bg-muted/60 transition-colors">
+              Cancel
+            </AlertDialogCancel>
+            <AlertDialogAction
+              onClick={action === "product" ? handleDeleteProduct : handleDeleteCustomer}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90 transition-colors"
+            >
+              {isPending ? (
+                <Loader2 className="animate-spin h-4 w-4 mr-1" />
+              ) : (
+                "Delete"
+              )}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+    </div>
   );
 };
 

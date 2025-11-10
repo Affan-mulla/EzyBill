@@ -68,30 +68,29 @@ class ProductsService extends AppwriteService {
    * @returns {Promise<Array>} Array of product documents
    */
   async getProducts(userId) {
-  try {
-    const response = await this.database.listDocuments(
-      conf.DatabaseId,
-      conf.product,
-      [Query.equal("productOwner", userId), Query.limit(1000)]
-    );
+    try {
+      const response = await this.database.listDocuments(
+        conf.DatabaseId,
+        conf.product,
+        [Query.equal("productOwner", userId), Query.limit(1000)]
+      );
 
-    if (response.documents.length > 0) {
-      const updatedProducts = response.documents.map((product) => ({
-        ...product,
-        productImage: product.productImage?.replace("/preview", "/view"),
-      }));
-      console.log(updatedProducts);
-      
-      return updatedProducts;
+      if (response.documents.length > 0) {
+        const updatedProducts = response.documents.map((product) => ({
+          ...product,
+          productImage: product.productImage?.replace("/preview", "/view"),
+        }));
+        console.log(updatedProducts);
+
+        return updatedProducts;
+      }
+
+      return [];
+    } catch (error) {
+      console.error("Error fetching products:", error);
+      throw error;
     }
-
-    return [];
-  } catch (error) {
-    console.error("Error fetching products:", error);
-    throw error;
   }
-}
-
 
   /**
    * Get a single product by ID
@@ -106,7 +105,11 @@ class ProductsService extends AppwriteService {
         productId
       );
 
-      return product;
+      const updatedProducts = {
+        ...product,
+        productImage: product.productImage?.replace("/preview", "/view"),
+      }
+      return updatedProducts;
     } catch (error) {
       console.error("Error fetching product:", error);
       throw error;
@@ -189,7 +192,7 @@ class ProductsService extends AppwriteService {
     try {
       // Get product to access imageId
       const product = await this.getProductById(productId);
-      
+
       // Delete product document
       const deleted = await this.database.deleteDocument(
         conf.DatabaseId,

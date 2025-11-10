@@ -114,13 +114,13 @@ const ProfileNotify = ({ className }) => {
           <DropdownMenuSeparator />
           <DropdownMenuItem
             onClick={() => mutateAsync()}
-            className="text-red-500 hover:text-red-600"
+            className="text-destructive font-semibold"
           > 
             {isPending ? (
               <Loader />
             ) : (
               <>
-                <IconLogout size={18} /> Logout
+                <IconLogout size={18} className="mr-2 " /> Logout
               </>
             )}
           </DropdownMenuItem>

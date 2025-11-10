@@ -76,7 +76,7 @@ const AddProductForm = ({ action, currentData }) => {
       transition={{ duration: 0.4 }}
       onSubmit={handleSubmit(onsubmit)}
     >
-      <div className="flex w-full justify-between items-center mb-6">
+      <div className="flex w-full justify-between items-center mb-3">
         <div className="flex items-center gap-2">
           <IconCaretDownFilled className="text-muted-foreground" />
           <h1 className="md:text-3xl text-2xl tracking-tight font-semibold">

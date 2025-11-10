@@ -5,14 +5,12 @@ import { Label } from '@/components/ui/label';
 import Loader from '@/components/ui/Loader';
 import { useUserContext } from '@/Context/AuthContext';
 import { toast } from '@/hooks/use-toast';
-import { useLogout, useUpdateProfile } from '@/lib/Query/queryMutation';
-import { IconLogout2 } from '@tabler/icons-react';
+import { useUpdateProfile } from '@/lib/Query/queryMutation';
 import React, { useCallback, useState } from 'react';
 
 import { useDropzone } from 'react-dropzone';
 import { useForm } from 'react-hook-form';
 const Setting = () => {
-const { mutateAsync: logout, isPending: logingOut} = useLogout()
 
   const { user } = useUserContext();
   const [fileUrl, setFileUrl] = useState(user.imageUrl || ''); // Initial fileUrl state
@@ -117,14 +115,14 @@ const { mutateAsync: logout, isPending: logingOut} = useLogout()
               <Input {...register('password', {required: true})} />
             </div>
 
-            <Button>
-              Submit
-            </Button>
+          <div>
+              <Button>
+                Save  
+              </Button>            
+          </div>
+          
+
           </form>
-        
-        <div>
-          <Button className='flex gap-2 bg-red-600/90 hover:bg-red-700' onClick={()=> logout()}>{logingOut ? (<Loader/>) : (<><IconLogout2/><p>Logout</p></>)}</Button>
-        </div>
         </div>
 
     

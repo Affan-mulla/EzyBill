@@ -10,6 +10,7 @@ const EditProduct = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const { data, isLoading, isError, error, refetch } = useGetProductById(id);
+console.log(data);
 
   if (isLoading) {
     return (
@@ -21,7 +22,7 @@ const EditProduct = () => {
 
   if (isError) {
     return (
-      <div className="h-full md:px-[100px] p-5 flex items-center justify-center">
+      <div className="h-full md:px-[100px] p-2 flex items-center justify-center">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -48,7 +49,7 @@ const EditProduct = () => {
   }
 
   return (
-    <div className="h-full md:px-[100px] p-5">
+    <div className="h-full md:px-[100px] p-2">
       <AddProductForm action="edit" currentData={data} />
     </div>
   );

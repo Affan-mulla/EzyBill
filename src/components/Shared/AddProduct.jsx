@@ -7,7 +7,7 @@ const AddProduct = () => {
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       transition={{ duration: 0.3 }}
-      className="dark:bg-neutral-950 h-full md:px-[100px] p-5"
+      className="dark:bg-neutral-950 h-full md:px-[100px] p-2"
     >
       <AddProductForm action="new" />
     </motion.div>

@@ -1,6 +1,6 @@
 import { motion } from 'framer-motion';
 import { useState } from 'react';
-import { customerColumn } from '@/components/Shared/Customer/CustomerColumn';
+import { customerColumns } from '@/components/Shared/Customer/CustomerColumnDefinitions';
 import { DataTable } from '@/components/Shared/DataTable';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { useUserContext } from '@/Context/AuthContext';
@@ -13,6 +13,18 @@ const Customer = () => {
   const [dateRange, setDateRange] = useState('all');
   const { user } = useUserContext();
   const { data: customers, isLoading, error, refetch } = useGetCustomers(user?.id, dateRange);
+console.log(customers);
+
+const newData = customers?.map((customer) => ({
+    productPurchased: customer.productPurchased,
+    InvoiceNo: customer.InvoiceNo,
+    date: customer.date,
+    paymentMethod: customer.paymentMethod,
+    customerName: customer.customerName,
+    $id: customer.$id,
+    totalSpent: customer.totalSpent
+}))
+
 
   const handleDateChange = (newDate) => {
     setDateRange(newDate || 'all');
@@ -40,13 +52,13 @@ const Customer = () => {
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.4 }}
-      className="h-full flex md:px-8 px-4 py-4 w-full dark:bg-neutral-950 flex-col gap-4"
+      className="h-full flex md:px-6 p-4 w-full flex-col gap-4"
     >
       {isLoading ? (
         <ProductTableSkeleton rows={5} />
       ) : (
-        <Card className="h-full md:px-8 md:py-5 px-2 py-3 w-full shadow-sm dark:shadow-none">
-          <CardHeader className="px-2">
+        <Card className="h-full w-full shadow-sm dark:shadow-none">
+          <CardHeader>
             <CardTitle className="md:text-3xl text-2xl tracking-tight">
               Customers
             </CardTitle>
@@ -56,8 +68,8 @@ const Customer = () => {
           </CardHeader>
           <CardContent>
             <DataTable
-              columns={customerColumn}
-              data={customers || []}
+              columns={customerColumns}
+              data={newData || []}
               isLoading={isLoading}
               filterColumn="customerName"
               filterPlaceholder="Search customers by name..."

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   flexRender,
@@ -24,7 +24,6 @@ import {
 import { TableSkeleton } from "@/components/ui/skeleton";
 import { useDebounce } from "@/hooks/useDebounce";
 import { cn } from "@/lib/utils";
-import AddProduct from "./AddProduct";
 
 /**
  * Enhanced Generic DataTable Component
@@ -53,7 +52,7 @@ import AddProduct from "./AddProduct";
 export function DataTable({
   columns,
   data = [],
-  isLoading = true,
+  isLoading = false,
   filterColumn = "name",
   filterPlaceholder = "Search...",
   onDateChange,
@@ -88,7 +87,7 @@ export function DataTable({
   });
 
   // Update filter when debounced value changes
-  useState(() => {
+  useEffect(() => {
     table.getColumn(filterColumn)?.setFilterValue(debouncedFilterValue);
   }, [debouncedFilterValue, filterColumn, table]);
 
@@ -104,22 +103,22 @@ export function DataTable({
   }
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-6 relative">
       {/* Search and Filter Section */}
       <motion.div
         initial={{ opacity: 0, y: -10 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.3 }}
-        className="flex flex-col sm:flex-row items-start sm:items-center gap-4 py-4"
+        className="flex flex-col sm:flex-row items-start sm:items-center gap-4"
       >
         {/* Search Input with Icon */}
-        <div className="relative w-full max-w-sm">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+        <div className="relative w-full sm:max-w-sm">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
           <Input
             placeholder={filterPlaceholder}
             value={filterValue}
             onChange={(e) => setFilterValue(e.target.value)}
-            className="pl-9 transition-all focus:ring-2"
+            className="pl-9 h-10 bg-background border-input transition-all duration-200 focus:ring-2 focus:ring-ring focus:ring-offset-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
           />
         </div>
 
@@ -130,8 +129,8 @@ export function DataTable({
 
         {/* Results Count */}
         {data.length > 0 && (
-          <div className="ml-auto text-sm text-muted-foreground">
-            Showing {table.getRowModel().rows.length} of {data.length} results
+          <div className="ml-auto text-sm font-medium text-muted-foreground">
+            Showing <span className="text-foreground font-semibold">{table.getRowModel().rows.length}</span> of <span className="text-foreground font-semibold">{data.length}</span>
           </div>
         )}
       </motion.div>
@@ -141,87 +140,92 @@ export function DataTable({
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ duration: 0.4, delay: 0.1 }}
-        className="rounded-md border overflow-hidden"
+        className="rounded-lg border border-border bg-card overflow-hidden shadow-sm"
       >
-        <Table>
-          {/* Table Header */}
-          <TableHeader className="bg-muted/50 sticky top-0">
-            {table.getHeaderGroups().map((headerGroup) => (
-              <TableRow key={headerGroup.id}>
-                {headerGroup.headers.map((header) => (
-                  <TableHead 
-                    key={header.id}
-                    className="font-semibold"
-                  >
-                    {header.isPlaceholder
-                      ? null
-                      : flexRender(
-                          header.column.columnDef.header,
-                          header.getContext()
-                        )}
-                  </TableHead>
-                ))}
-              </TableRow>
-            ))}
-          </TableHeader>
-
-          {/* Table Body */}
-          <TableBody>
-            <AnimatePresence mode="wait">
-              {table.getRowModel().rows?.length ? (
-                table.getRowModel().rows.map((row, index) => (
-                  <motion.tr
-                    key={row.id}
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: -10 }}
-                    transition={{ duration: 0.2, delay: index * 0.02 }}
-                    className={cn(
-                      "border-b transition-colors hover:bg-muted/50",
-                      "data-[state=selected]:bg-muted"
-                    )}
-                    data-state={row.getIsSelected() && "selected"}
-                  >
-                    {row.getVisibleCells().map((cell) => (
-                      <TableCell key={cell.id}>
-                        {flexRender(
-                          cell.column.columnDef.cell,
-                          cell.getContext()
-                        )}
-                      </TableCell>
-                    ))}
-                  </motion.tr>
-                ))
-              ) : (
-                <TableRow>
-                  <TableCell
-                    colSpan={columns.length}
-                    className="h-48 text-center"
-                  >
-                    <motion.div
-                      initial={{ opacity: 0, scale: 0.9 }}
-                      animate={{ opacity: 1, scale: 1 }}
-                      transition={{ duration: 0.3 }}
-                      className="flex flex-col items-center justify-center gap-2"
+        <div className="overflow-x-auto">
+          <Table>
+            {/* Table Header */}
+            <TableHeader className="bg-muted/30 backdrop-blur-sm sticky top-0 z-10">
+              {table.getHeaderGroups().map((headerGroup) => (
+                <TableRow key={headerGroup.id} className="border-b border-border hover:bg-transparent">
+                  {headerGroup.headers.map((header) => (
+                    <TableHead 
+                      key={header.id}
+                      className="font-semibold text-sm text-foreground h-12 px-4"
                     >
-                      <div className="rounded-full bg-muted p-3">
-                        <Search className="h-6 w-6 text-muted-foreground" />
-                      </div>
-                      <p className="text-muted-foreground font-medium">
-                        {emptyMessage}
-                      </p>
-                      {filterValue && (
-                        <p className="text-sm text-muted-foreground">
-                          Try adjusting your search terms
-                        </p>
-                      )}
-                    </motion.div>
-                  </TableCell>
+                      {header.isPlaceholder
+                        ? null
+                        : flexRender(
+                            header.column.columnDef.header,
+                            header.getContext()
+                          )}
+                    </TableHead>
+                  ))}
                 </TableRow>
-              )}
-            </AnimatePresence>
-          </TableBody>
-        </Table>
+              ))}
+            </TableHeader>
+
+            {/* Table Body */}
+            <TableBody>
+              <AnimatePresence mode="wait">
+                {table.getRowModel().rows?.length ? (
+                  table.getRowModel().rows.map((row, index) => (
+                    <motion.tr
+                      key={row.id}
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: -10 }}
+                      transition={{ duration: 0.2, delay: index * 0.02 }}
+                      className={cn(
+                        "border-b border-border transition-colors duration-150",
+                        "hover:bg-accent/50 hover:shadow-sm",
+                        "data-[state=selected]:bg-accent "
+                      )}
+                      data-state={row.getIsSelected() && "selected"}
+                    >
+                      {row.getVisibleCells().map((cell) => (
+                        <TableCell key={cell.id} className="px-4 py-3">
+                          {flexRender(
+                            cell.column.columnDef.cell,
+                            cell.getContext()
+                          )}
+                        </TableCell>
+                      ))}
+                    </motion.tr>
+                  ))
+                ) : (
+                  <TableRow>
+                    <TableCell
+                      colSpan={columns.length}
+                      className="h-64 text-center"
+                    >
+                      <motion.div
+                        initial={{ opacity: 0, scale: 0.9 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        transition={{ duration: 0.3 }}
+                        className="flex flex-col items-center justify-center gap-3"
+                      >
+                        <div className="rounded-full bg-muted p-4 shadow-sm">
+                          <Search className="h-8 w-8 text-muted-foreground" />
+                        </div>
+                        <div className="space-y-1">
+                          <p className="text-foreground font-semibold text-base">
+                            {emptyMessage}
+                          </p>
+                          {filterValue && (
+                            <p className="text-sm text-muted-foreground">
+                              Try adjusting your search terms
+                            </p>
+                          )}
+                        </div>
+                      </motion.div>
+                    </TableCell>
+                  </TableRow>
+                )}
+              </AnimatePresence>
+            </TableBody>
+          </Table>
+        </div>
       </motion.div>
 
       {/* Date Filter Disclaimer */}
@@ -230,9 +234,9 @@ export function DataTable({
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 0.2 }}
-          className="text-xs text-muted-foreground px-2"
+          className="text-xs text-muted-foreground px-1"
         >
-          Note: All dates and times are displayed in ISO 8601 format.
+          Note: Dates are displayed in Indian Standard Time (IST) format.
         </motion.p>
       )}
 
@@ -242,20 +246,20 @@ export function DataTable({
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.3, delay: 0.2 }}
-          className="flex items-center justify-between px-2"
+          className="flex flex-col sm:flex-row items-center justify-between gap-4 px-1"
         >
-          <div className="text-sm text-muted-foreground">
-            Page {table.getState().pagination.pageIndex + 1} of{" "}
-            {table.getPageCount()}
+          <div className="text-sm font-medium text-muted-foreground">
+            Page <span className="text-foreground font-semibold">{table.getState().pagination.pageIndex + 1}</span> of{" "}
+            <span className="text-foreground font-semibold">{table.getPageCount()}</span>
           </div>
           
-          <div className="flex items-center space-x-2">
+          <div className="flex items-center gap-2">
             <Button
               variant="outline"
               size="sm"
               onClick={() => table.previousPage()}
               disabled={!table.getCanPreviousPage()}
-              className="gap-1"
+              className="gap-1.5 h-9 px-3 shadow-sm hover:bg-accent hover:shadow transition-all duration-200"
             >
               <ChevronLeft className="h-4 w-4" />
               Previous
@@ -265,7 +269,7 @@ export function DataTable({
               size="sm"
               onClick={() => table.nextPage()}
               disabled={!table.getCanNextPage()}
-              className="gap-1"
+              className="gap-1.5 h-9 px-3 shadow-sm hover:bg-accent hover:shadow transition-all duration-200"
             >
               Next
               <ChevronRight className="h-4 w-4" />

@@ -3,6 +3,7 @@ import { items } from "@/Constants";
 import { Link, useLocation } from "react-router-dom";
 import { Menu, X, ChevronLeft, ChevronRight } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useUserContext } from "@/Context/AuthContext";
 
 const Sidebar = () => {
   const [isMobileOpen, setIsMobileOpen] = useState(false);
@@ -11,6 +12,10 @@ const Sidebar = () => {
   const toggleSidebar = () => setIsExpanded(!isExpanded);
   const toggleMobileSidebar = () => setIsMobileOpen(!isMobileOpen);
   const closeMobileSidebar = () => setIsMobileOpen(false);
+  const { user } = useUserContext();
+
+  console.log(user);
+
 
   return (
     <>
@@ -34,7 +39,7 @@ const Sidebar = () => {
       {/* Sidebar */}
       <aside
         className={cn(
-          "fixed md:static left-0 top-0 md:h-auto bg-card backdrop-blur-sm border-r border-border z-40 md:z-auto shadow-lg transition-all duration-300 ease-in-out flex flex-col",
+          "fixed md:static left-0 top-0 h-screen bg-sidebar backdrop-blur-sm border-r border-border z-40 md:z-auto shadow-lg transition-all duration-300 ease-in-out flex flex-col",
           isMobileOpen
             ? "translate-x-0 h-screen"
             : "-translate-x-full md:translate-x-0",
@@ -44,7 +49,10 @@ const Sidebar = () => {
         )}
       >
         {/* Header */}
-        <div className="h-16 flex items-center justify-between px-4 border-b border-border">
+        <div className={cn(
+          "flex items-center justify-between px-4 py-2 mt-3",
+          isExpanded ? "md:justify-between" : "md:justify-center"
+        )}>
           {
             isExpanded && (
               <div className="flex items-center gap-3 overflow-hidden">
@@ -83,11 +91,11 @@ const Sidebar = () => {
                     to={item.route}
                     onClick={closeMobileSidebar}
                     className={cn(
-                      "group relative flex items-center gap-3 px-3 py-3 rounded-xl font-medium transition-all duration-200",
+                      "group relative flex items-center gap-3 px-3 py-2 rounded-xl font-medium transition-all duration-200",
                       isActive
                         ? "bg-primary text-primary-foreground shadow-md"
                         : "text-muted-foreground hover:bg-accent hover:text-accent-foreground",
-                      isExpanded || isMobileOpen ? "justify-start" : "justify-center"
+                      isExpanded || isMobileOpen ? "justify-start " : "justify-center px-1"
                     )}
                   >
                     <div className="w-6 h-6 flex items-center justify-center flex-shrink-0">
@@ -102,12 +110,12 @@ const Sidebar = () => {
 
                     {/* Tooltip */}
                     {!isExpanded && (
-                        <div className="pointer-events-none absolute left-full top-1/2 -translate-y-1/2 ml-3 
+                      <div className="pointer-events-none absolute left-full top-1/2 -translate-y-1/2 ml-3 
       px-2 py-1 bg-popover text-sm text-popover-foreground rounded-md shadow-md 
       opacity-0 group-hover:opacity-100 whitespace-nowrap border border-border 
       z-50 transition-opacity duration-200">
-                          {item.label}
-                        </div>
+                        {item.label}
+                      </div>
 
                     )}
 
@@ -119,24 +127,33 @@ const Sidebar = () => {
         </nav>
 
         {/* Footer */}
-        <div className="p-4 border-t border-border">
-          <div
-            className={cn(
-              "flex items-center gap-3 px-3 py-2 rounded-lg bg-muted/40 hover:bg-muted/60 transition-colors",
-              isExpanded ? "justify-start" : "justify-center"
-            )}
-          >
-            <div className="w-8 h-8 rounded-full bg-primary flex items-center justify-center">
-              <span className="text-primary-foreground text-sm font-semibold">U</span>
-            </div>
-            {isExpanded && (
-              <div>
-                <p className="text-sm font-medium text-foreground">User</p>
-                <p className="text-xs text-muted-foreground">Admin</p>
+        <div className={cn(
+          "relative rounded-xl border border-border bg-card/80 backdrop-blur-md p-3 m-2 shadow-md overflow-hidden",
+          isExpanded ? "p-3" : "p-2")}>
+          {/* Glow Background */}
+          <div className="absolute -top-10 -right-10 w-32 h-32 bg-gradient-to-br from-violet-600/80 via-purple-600/70 to-transparent blur-2xl rounded-full opacity-80 animate-pulse" />
+
+          {/* Card Content */}
+          <div className="relative z-10 flex items-center gap-3 sm:gap-4">
+            <img
+              src={user.imageUrl || ''}
+              alt="User"
+              className="w-9 h-9 sm:w-10 sm:h-10 md:w-12 md:h-12 rounded-full object-cover border border-border shadow-sm"
+            />
+
+            {isExpanded  && (
+              <div className="">
+                <p className="text-sm sm:text-base font-medium text-foreground truncate">
+                  {user.name || 'User Name'}
+                </p>
+                <p className="text-xs sm:text-sm text-muted-foreground truncate">
+                  {user.email || 'User Email'}
+                </p>
               </div>
             )}
           </div>
         </div>
+
       </aside>
     </>
   );
