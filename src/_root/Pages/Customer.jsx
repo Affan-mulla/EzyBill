@@ -1,30 +1,28 @@
 import { motion } from 'framer-motion';
 import { useState } from 'react';
+import { AlertCircle } from 'lucide-react';
 import { customerColumns } from '@/components/Shared/Customer/CustomerColumnDefinitions';
 import { DataTable } from '@/components/Shared/DataTable';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { ProductTableSkeleton } from '@/components/ui/skeleton';
 import { useUserContext } from '@/Context/AuthContext';
 import { useGetCustomers } from '@/lib/Query/queryMutation';
-import { ProductTableSkeleton } from '@/components/ui/skeleton';
-import { AlertCircle } from 'lucide-react';
-import { Button } from '@/components/ui/button';
 
 const Customer = () => {
   const [dateRange, setDateRange] = useState('all');
   const { user } = useUserContext();
   const { data: customers, isLoading, error, refetch } = useGetCustomers(user?.id, dateRange);
-console.log(customers);
 
-const newData = customers?.map((customer) => ({
+  const newData = customers?.map((customer) => ({
     productPurchased: customer.productPurchased,
     InvoiceNo: customer.InvoiceNo,
     date: customer.date,
     paymentMethod: customer.paymentMethod,
     customerName: customer.customerName,
     $id: customer.$id,
-    totalSpent: customer.totalSpent
-}))
-
+    totalSpent: customer.totalSpent,
+  }));
 
   const handleDateChange = (newDate) => {
     setDateRange(newDate || 'all');
@@ -59,9 +57,7 @@ const newData = customers?.map((customer) => ({
       ) : (
         <Card className="h-full w-full shadow-sm dark:shadow-none">
           <CardHeader>
-            <CardTitle className="md:text-3xl text-2xl tracking-tight">
-              Customers
-            </CardTitle>
+            <CardTitle className="md:text-3xl text-2xl tracking-tight">Customers</CardTitle>
             <p className="text-sm text-muted-foreground mt-1">
               View and manage customer invoices and transactions.
             </p>

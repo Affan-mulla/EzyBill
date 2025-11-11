@@ -1,11 +1,11 @@
-import { useUserContext } from "@/Context/AuthContext";
-import { useGetProduct } from "@/lib/Query/queryMutation";
-import { ProductTableSkeleton } from "@/components/ui/skeleton";
-import { DataTable } from "@/components/Shared/DataTable";
-import { columns } from "./Coloumn";
-import { AlertCircle } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { motion } from "framer-motion";
+import { motion } from 'framer-motion';
+import { AlertCircle } from 'lucide-react';
+import { useUserContext } from '@/Context/AuthContext';
+import { useGetProduct } from '@/lib/Query/queryMutation';
+import { ProductTableSkeleton } from '@/components/ui/skeleton';
+import { DataTable } from '@/components/Shared/DataTable';
+import { Button } from '@/components/ui/button';
+import { columns } from './Coloumn';
 
 const DemoPage = () => {
   const { user } = useUserContext();

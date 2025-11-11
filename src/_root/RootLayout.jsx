@@ -1,11 +1,9 @@
-import React from "react";
-import Sidebar from "./Sidebar";
-import { Outlet } from "react-router-dom";
-import Navbar from "@/components/Shared/Navbar";
-import { ScrollArea } from "@/components/ui/scroll-area";
+import { Outlet } from 'react-router-dom';
+import Navbar from '@/components/Shared/Navbar';
+import { ScrollArea } from '@/components/ui/scroll-area';
+import Sidebar from './Sidebar';
 
 const RootLayout = () => {
-  
   return (
     <div className="w-full flex">
       <Sidebar />
@@ -13,8 +11,7 @@ const RootLayout = () => {
         <Navbar />
         <ScrollArea className="bg-background max-h-[calc(100vh-64px)] h-full w-full">
           <Outlet />
-          </ScrollArea>
-        
+        </ScrollArea>
       </main>
     </div>
   );

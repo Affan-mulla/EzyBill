@@ -1,5 +1,9 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { useForm } from 'react-hook-form';
 import { motion } from 'framer-motion';
+import { Loader2 } from 'lucide-react';
+import { IconCaretDownFilled } from '@tabler/icons-react';
 import { Button } from '@/components/ui/button';
 import FileUploader from '@/components/ui/FileUploader';
 import { Input } from '@/components/ui/input';
@@ -8,13 +12,12 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Textarea } from '@/components/ui/textarea';
 import { useUserContext } from '@/Context/AuthContext';
 import { useCreateProduct, useEditProduct } from '@/lib/Query/queryMutation';
-import { IconCaretDownFilled } from '@tabler/icons-react';
-import { useForm } from 'react-hook-form';
-import { useNavigate } from 'react-router-dom';
-import { Loader2 } from 'lucide-react';
 
 const AddProductForm = ({ action, currentData }) => {
   const { user } = useUserContext();
+  const navigate = useNavigate();
+  const [uploadedFiles, setUploadedFiles] = useState([]);
+
   const {
     register,
     handleSubmit,
@@ -28,12 +31,10 @@ const AddProductForm = ({ action, currentData }) => {
       price: currentData?.price || 0,
     },
   });
-  const [uploadedFiles, setUploadedFiles] = useState([]);
-  const navigate = useNavigate();
+
   const { mutateAsync: createProduct, isPending } = useCreateProduct();
   const { mutateAsync: editProduct, isPending: editing } = useEditProduct();
 
-  // Form submit handler
   async function onsubmit(data) {
     if (!uploadedFiles.length && action !== 'edit') {
       return;
@@ -59,7 +60,6 @@ const AddProductForm = ({ action, currentData }) => {
     }
   }
 
-  // File handler to update uploaded files
   const handleFileChange = (files) => {
     setUploadedFiles(files);
     setValue('images', files);

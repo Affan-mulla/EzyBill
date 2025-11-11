@@ -1,20 +1,10 @@
-import { ID, Query } from "appwrite";
-import AppwriteService from "./appwrite.service";
-import conf from "../Config/conf";
+import { ID, Query } from 'appwrite';
+import AppwriteService from './appwrite.service';
+import conf from '../Config/conf';
 
-/**
- * Authentication Service
- * Handles all authentication and user-related operations
- */
 class AuthenticationService extends AppwriteService {
-  /**
-   * Create a new user account
-   * @param {Object} userData - User registration data
-   * @returns {Promise<Object>} Created user document
-   */
   async createUser({ email, shopName, password, name, phone }) {
     try {
-      // Create Appwrite account
       const createUserAccount = await this.account.create(
         ID.unique(),
         email,
@@ -24,13 +14,11 @@ class AuthenticationService extends AppwriteService {
       );
 
       if (!createUserAccount) {
-        throw new Error("Failed to create user account");
+        throw new Error('Failed to create user account');
       }
 
-      // Generate avatar
       const avatarUrl = this.avatars.getInitials(shopName);
 
-      // Save user to database
       const newUser = await this.saveUserToDB({
         account: createUserAccount.$id,
         email,
@@ -42,16 +30,11 @@ class AuthenticationService extends AppwriteService {
 
       return newUser;
     } catch (error) {
-      console.error("Error creating user:", error);
+      console.error('Error creating user:', error);
       throw error;
     }
   }
 
-  /**
-   * Save user information to database
-   * @param {Object} userData - User data to save
-   * @returns {Promise<Object>} Saved user document
-   */
   async saveUserToDB({ account, email, name, avatarUrl, shopName, phone }) {
     try {
       const userDoc = await this.database.createDocument(
@@ -70,16 +53,11 @@ class AuthenticationService extends AppwriteService {
 
       return userDoc;
     } catch (error) {
-      console.error("Error saving user to database:", error);
+      console.error('Error saving user to database:', error);
       throw error;
     }
   }
 
-  /**
-   * Sign in to account
-   * @param {Object} credentials - Email and password
-   * @returns {Promise<Object>} Session object
-   */
   async signInAccount({ email, password }) {
     try {
       const session = await this.account.createEmailPasswordSession(
@@ -88,12 +66,12 @@ class AuthenticationService extends AppwriteService {
       );
 
       if (!session) {
-        throw new Error("Failed to create session");
+        throw new Error('Failed to create session');
       }
 
       return session;
     } catch (error) {
-      console.error("Error signing in:", error);
+      console.error('Error signing in:', error);
       throw error;
     }
   }

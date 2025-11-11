@@ -1,35 +1,24 @@
-/**
- * Enhanced Customer Column Definitions
- * Features better formatting, accessibility, and visual feedback
- */
-
+import { ID } from 'appwrite';
 import { formatCurrency, formatIST } from '@/lib/utils/format';
 import { Badge } from '@/components/ui/badge';
-import { ID } from "appwrite";
-import Actions from "../Product/Actions";
+import Actions from '../Product/Actions';
 
 export const customerColumns = [
   {
-    header: "Invoice ID",
-    accessorKey: "InvoiceNo",
+    header: 'Invoice ID',
+    accessorKey: 'InvoiceNo',
     cell: ({ getValue }) => (
-      <div className="font-mono font-medium text-foreground">
-        #{getValue()}
-      </div>
+      <div className="font-mono font-medium text-foreground">#{getValue()}</div>
     ),
   },
   {
-    header: "Customer Name",
-    accessorKey: "customerName",
-    cell: ({ getValue }) => (
-      <div className="font-medium text-foreground">
-        {getValue()}
-      </div>
-    ),
+    header: 'Customer Name',
+    accessorKey: 'customerName',
+    cell: ({ getValue }) => <div className="font-medium text-foreground">{getValue()}</div>,
   },
   {
-    header: "Items Purchased",
-    accessorKey: "productPurchased",
+    header: 'Items Purchased',
+    accessorKey: 'productPurchased',
     cell: ({ getValue }) => {
       try {
         const products = JSON.parse(getValue());
@@ -38,7 +27,7 @@ export const customerColumns = [
             {products.map((product) => (
               <div key={ID.unique()} className="text-sm text-muted-foreground">
                 <span className="font-medium text-foreground">{product.productName}</span>
-                {" × "}
+                {' × '}
                 <span className="font-semibold">{product.quantity}</span>
               </div>
             ))}
@@ -50,54 +39,39 @@ export const customerColumns = [
     },
   },
   {
-    header: "Payment Method",
-    accessorKey: "paymentMethod",
+    header: 'Payment Method',
+    accessorKey: 'paymentMethod',
     cell: ({ getValue }) => {
       const method = getValue();
-
-      return (
-        <Badge variant={ "default" }>
-          {method}
-        </Badge>
-      );
+      return <Badge variant="default">{method}</Badge>;
     },
   },
   {
-    header: "Total",
-    accessorKey: "totalSpent",
+    header: 'Total',
+    accessorKey: 'totalSpent',
     cell: ({ getValue }) => (
-      <div className="font-semibold text-lg text-foreground">
-        {formatCurrency(getValue())}
-      </div>
+      <div className="font-semibold text-lg text-foreground">{formatCurrency(getValue())}</div>
     ),
   },
   {
-    header: "Date",
-    accessorKey: "purchaseDate",
+    header: 'Date',
+    accessorKey: 'purchaseDate',
     cell: ({ row, getValue }) => {
       const raw = getValue() || row.original?.date || row.original?.purchaseDateISO;
       let display = 'N/A';
-      console.log(row.original?.date);
-      
+
       if (raw) {
-        // If raw looks like ISO (contains 'T'), format to IST string; else assume already formatted
         display = typeof raw === 'string' && raw.includes('T') ? formatIST(raw) : raw;
       }
-      return (
-        <div className="text-sm font-medium text-foreground">{display}</div>
-      );
+      return <div className="text-sm font-medium text-foreground">{display}</div>;
     },
   },
   {
-    header: "Actions",
-    id: "actions",
-    accessorKey: "$id",
+    header: 'Actions',
+    id: 'actions',
+    accessorKey: '$id',
     cell: ({ getValue, row }) => (
-      <Actions
-        productId={getValue()}
-        action="customer"
-        customerData={row.original}
-      />
+      <Actions productId={getValue()} action="customer" customerData={row.original} />
     ),
   },
 ];

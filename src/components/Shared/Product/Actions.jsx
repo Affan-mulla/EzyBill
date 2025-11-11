@@ -1,6 +1,6 @@
-import React from 'react';
-import { Loader2, Pen, Trash2 } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { Loader2, Pen, Trash2 } from 'lucide-react';
+import { Link } from 'react-router-dom';
+import { Button } from '@/components/ui/button';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -11,14 +11,11 @@ import {
   AlertDialogFooter,
   AlertDialogTitle,
   AlertDialogTrigger,
-} from "@/components/ui/alert-dialog";
-import { Link } from 'react-router-dom';
+} from '@/components/ui/alert-dialog';
 import { useDeleteCustomer, useDeleteProduct } from '@/lib/Query/queryMutation';
 import { toast } from '@/hooks/use-toast';
-import { useUserContext } from '@/Context/AuthContext';
 
 const Actions = ({ productId, getData, action }) => {
-  const { user } = useUserContext();
   const { mutateAsync: deleteProductMutation } = useDeleteProduct();
   const { mutateAsync: deleteCustomerMutation, isPending } = useDeleteCustomer();
 
@@ -26,14 +23,14 @@ const Actions = ({ productId, getData, action }) => {
     const deleted = await deleteProductMutation(productId);
     if (!deleted) {
       return toast({
-        variant: "destructive",
-        title: "Oops! Something went wrong.",
-        description: "Try again later.",
+        variant: 'destructive',
+        title: 'Oops! Something went wrong.',
+        description: 'Try again later.',
       });
     }
     await getData?.();
     toast({
-      title: "Product deleted successfully.",
+      title: 'Product deleted successfully.',
     });
   };
 
@@ -41,20 +38,19 @@ const Actions = ({ productId, getData, action }) => {
     const deleted = await deleteCustomerMutation(productId);
     if (!deleted) {
       return toast({
-        variant: "destructive",
-        title: "Oops! Something went wrong.",
-        description: "Try again later.",
+        variant: 'destructive',
+        title: 'Oops! Something went wrong.',
+        description: 'Try again later.',
       });
     }
     toast({
-      title: "Customer deleted successfully.",
+      title: 'Customer deleted successfully.',
     });
   };
 
   return (
     <div className="flex items-center gap-1">
-      {/* Edit Button (only for product) */}
-      {action === "product" && (
+      {action === 'product' && (
         <Link to={`/edit-product/${productId}`}>
           <Button
             variant="ghost"
@@ -66,7 +62,6 @@ const Actions = ({ productId, getData, action }) => {
         </Link>
       )}
 
-      {/* Delete Button with Confirmation */}
       <AlertDialog>
         <AlertDialogTrigger asChild>
           <Button
@@ -85,10 +80,11 @@ const Actions = ({ productId, getData, action }) => {
         <AlertDialogContent className="max-w-sm border border-border bg-card/95 backdrop-blur-sm shadow-lg">
           <AlertDialogHeader>
             <AlertDialogTitle className="text-lg font-semibold text-foreground">
-              Delete {action === "product" ? "Product" : "Customer"}
+              Delete {action === 'product' ? 'Product' : 'Customer'}
             </AlertDialogTitle>
             <AlertDialogDescription className="text-sm text-muted-foreground">
-              Are you sure you want to delete this {action}? This action cannot be undone and will permanently remove all related data.
+              Are you sure you want to delete this {action}? This action cannot be undone and will
+              permanently remove all related data.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter className="flex justify-end gap-2 pt-4">
@@ -96,14 +92,10 @@ const Actions = ({ productId, getData, action }) => {
               Cancel
             </AlertDialogCancel>
             <AlertDialogAction
-              onClick={action === "product" ? handleDeleteProduct : handleDeleteCustomer}
+              onClick={action === 'product' ? handleDeleteProduct : handleDeleteCustomer}
               className="bg-destructive text-destructive-foreground hover:bg-destructive/90 transition-colors"
             >
-              {isPending ? (
-                <Loader2 className="animate-spin h-4 w-4 mr-1" />
-              ) : (
-                "Delete"
-              )}
+              {isPending ? <Loader2 className="animate-spin h-4 w-4 mr-1" /> : 'Delete'}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

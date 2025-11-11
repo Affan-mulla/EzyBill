@@ -1,30 +1,21 @@
+import { useEffect, useRef, useState } from 'react';
+import { useForm } from 'react-hook-form';
+import { useNavigate } from 'react-router-dom';
+import { useReactToPrint } from 'react-to-print';
+import { IconCheck, IconMinus, IconPlus } from '@tabler/icons-react';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import Loader from '@/components/ui/Loader';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import InvoicePreview from '@/components/Shared/Customer/Invoice';
 import { useUserContext } from '@/Context/AuthContext';
 import { useGetProduct, useSaveCustomer } from '@/lib/Query/queryMutation';
-import { IconCheck, IconMinus, IconPlus } from '@tabler/icons-react';
-import React, { useEffect, useRef, useState } from 'react';
-import { useForm, useWatch } from 'react-hook-form';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select"
-import { Button } from '@/components/ui/button';
-import { Watch } from 'lucide-react';
-import InvoicePreview from '@/components/Shared/Customer/Invoice';
-import { useReactToPrint } from 'react-to-print';
-import { Toast } from '@/components/ui/toast';
-import { useNavigate } from 'react-router-dom';
 import { toast } from '@/hooks/use-toast';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { formatIST } from '@/lib/utils/format';
 
-// Quantity Counter component for reusability
 const QuantityCounter = ({ index, quantity, onIncrease, onDecrease }) => (
   <div className="flex items-center gap-2 bg-muted/50 rounded-md h-fit w-fit border border-border">
     <button

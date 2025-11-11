@@ -10,7 +10,6 @@ const EditProduct = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const { data, isLoading, isError, error, refetch } = useGetProductById(id);
-console.log(data);
 
   if (isLoading) {
     return (

@@ -31,7 +31,7 @@ const Setting = () => {
       phone: user.phone || '',
       password: '',
       ownerId: user.id || '',
-      address: user.address
+      address: user.address || ''
     }
   });
 
@@ -44,6 +44,7 @@ const Setting = () => {
         phone: user.phone || '',
         password: '',
         ownerId: user.id,
+        address: user.address || ''
       });
       setFileUrl(user.imageUrl || '');
     }
