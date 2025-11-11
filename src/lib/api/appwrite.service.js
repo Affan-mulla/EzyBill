@@ -25,6 +25,8 @@ class AppwriteService {
    */
   async uploadFile(file) {
     try {
+      console.log("Uploading new file with random ID:", ID.unique());
+
       const uploadedFile = await this.storage.createFile(
         conf.BucketId,
         ID.unique(),

@@ -1,139 +1,213 @@
+import { SettingsSkeleton } from '@/components/Shared/Setting/SettingSkeleton';
 import { Button } from '@/components/ui/button';
-import { Card } from '@/components/ui/card';
+import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import Loader from '@/components/ui/Loader';
+import { Skeleton } from '@/components/ui/skeleton';
+import { Textarea } from '@/components/ui/textarea';
 import { useUserContext } from '@/Context/AuthContext';
 import { toast } from '@/hooks/use-toast';
 import { useUpdateProfile } from '@/lib/Query/queryMutation';
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useState, useMemo } from 'react';
+import { useEffect } from 'react';
 
 import { useDropzone } from 'react-dropzone';
 import { useForm } from 'react-hook-form';
-const Setting = () => {
+const MAX_FILE_SIZE_MB = 2;
+const ACCEPTED_TYPES = ['image/png', 'image/jpeg', 'image/jpg'];
 
-  const { user } = useUserContext();
-  const [fileUrl, setFileUrl] = useState(user.imageUrl || ''); // Initial fileUrl state
-  const { mutateAsync, isPending } = useUpdateProfile()
-  const { register, handleSubmit, setValue } = useForm({
+const Setting = () => {
+  const { user, setUser } = useUserContext();
+  const [fileUrl, setFileUrl] = useState(user.imageUrl || '');
+  const [selectedFile, setSelectedFile] = useState(null);
+  const { mutateAsync, isPending } = useUpdateProfile();
+  const { register, handleSubmit, setValue, formState: { errors }, watch, reset } = useForm({
+    mode: 'onChange',
     defaultValues: {
-      ownerName: user.name,
-      shopName: user.shopName,
-      email: user.email,
-      phone: user.phone, // default phone as empty string
-    },
+      ownerName: user.name || '',
+      shopName: user.shopName || '',
+      email: user.email || '',
+      phone: user.phone || '',
+      password: '',
+      ownerId: user.id || '',
+      address: user.address
+    }
   });
 
-  const onsubmit = async (data) => {
-    const formData = {
-      ...data,
-      ownerId: user.id,
-      imageUrl: user.imageUrl,
+  useEffect(() => {
+    if (user?.id) {
+      reset({
+        ownerName: user.name || '',
+        shopName: user.shopName || '',
+        email: user.email || '',
+        phone: user.phone || '',
+        password: '',
+        ownerId: user.id,
+      });
+      setFileUrl(user.imageUrl || '');
     }
-    const updateProfile = await mutateAsync(formData)
+  }, [user, reset]);
 
-    if (!updateProfile) {
-      return toast({
-        variant: 'destructive',
-        title: 'something went wrong please try again later.'
-      })
+
+  const watched = watch();
+  const hasChanges = useMemo(() => {
+    return (
+      watched.ownerName !== (user.name || '') ||
+      watched.shopName !== (user.shopName || '') ||
+      watched.email !== (user.email || '') ||
+      watched.phone !== (user.phone || '') ||
+      (watched.password && watched.password.length > 0) ||
+      selectedFile !== null
+    );
+  }, [watched, user, selectedFile]);
+
+  const validateFile = (file) => {
+    if (!file) return true;
+    if (!ACCEPTED_TYPES.includes(file.type)) {
+      toast({ variant: 'destructive', title: 'Invalid file type. Use PNG/JPEG' });
+      return false;
     }
-
-    return toast({
-      title: 'Profile updated successfully.'
-    })
-
+    if (file.size / (1024 * 1024) > MAX_FILE_SIZE_MB) {
+      toast({ variant: 'destructive', title: `File too large. Max ${MAX_FILE_SIZE_MB}MB` });
+      return false;
+    }
+    return true;
   };
 
   const onDrop = useCallback((acceptedFiles) => {
-    setFileUrl(URL.createObjectURL(acceptedFiles[0]));
-    setValue('file', acceptedFiles); // Setting file in form state
+    const file = acceptedFiles[0];
+    if (!validateFile(file)) return;
+    setSelectedFile(file);
+    setFileUrl(URL.createObjectURL(file));
+    setValue('file', file, { shouldDirty: true });
   }, [setValue]);
 
-  const { getRootProps, getInputProps } = useDropzone({
+  const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop,
+    multiple: false,
     accept: { 'image/*': ['.png', '.jpg', '.jpeg'] },
+    maxFiles: 1
   });
 
+  const onsubmit = async (data) => {
+    if (!hasChanges) {
+      return toast({ title: 'No changes to save', description: 'Modify a field or choose a new logo.' });
+    }
+
+    const formData = new FormData();
+    formData.append('ownerId', data.ownerId);
+    formData.append('ownerName', data.ownerName);
+    formData.append('shopName', data.shopName);
+    formData.append('email', data.email);
+    formData.append('phone', data.phone);
+    formData.append('address', data.address);
+    if (data.password) formData.append('password', data.password);
+    if (selectedFile) formData.append('file', selectedFile);
+
+
+    try {
+      const updated = await mutateAsync(formData);
+      if (!updated) throw new Error('Update failed');
+      toast({ title: 'Profile updated successfully.' });
+      reset({ ...data, password: '' });
+      setSelectedFile(null);
+
+      setUser((prev) => ({
+        ...prev,
+        name: updated.ownerName,
+        shopName: updated.shopName,
+        email: updated.email,
+        phone: updated.phone,
+        imageUrl: updated.logo?.replace("/preview", "/view"),
+        address: updated.address
+      }));
+
+    } catch (e) {
+      toast({ variant: 'destructive', title: 'Update failed', description: e.message });
+    }
+  };
+
+  if (!user.id) return (
+    <SettingsSkeleton />
+  )
 
 
   return (
-    <div className=' flex px-4 md:px-10 md:py-2 py-3 w-full dark:bg-neutral-950'>
-      {user.id !== '' ? (
-        <Card className='w-full h-full'>
-          <div className='h-full w-full flex px-6 py-4  border rounded-md  flex-col gap-4'>
-          <div>
-            <h1 className='md:text-3xl text-2xl tracking-tight'>Settings</h1>
-          </div>
-          <form onSubmit={handleSubmit(onsubmit)} className='flex-1 flex flex-col gap-3'>
-            <div className='w-fit'>
-              <img
-                src={fileUrl || user.imageUrl}
-                alt='profile-img'
-                className='object-cover w-14 h-14 rounded-full'
-              />
-              <div {...getRootProps()}>
-                <label className='cursor-pointer text-violet-500 hover:text-violet-600 transition duration-200'>
-                  Choose Logo
-                </label>
-                <input
-                  id='profile-upload'
-                  type='file'
-                  accept='image/*'
-                  className='hidden'
-                  {...getInputProps()}
+    <div className='px-4 md:px-10 py-4 w-full'>
+      <Card className='w-full border border-border/60 shadow-sm bg-card/90 backdrop-blur'>
+        <CardHeader className='pb-4 border-b border-border/50'>
+          <CardTitle className='text-2xl font-semibold tracking-tight'>Settings</CardTitle>
+          <CardDescription>Update your profile, shop identity and billing details.</CardDescription>
+        </CardHeader>
+        <form onSubmit={handleSubmit(onsubmit)}>
+          <CardContent className='space-y-6 pt-6'>
+            <div className='flex items-start gap-6'>
+              <div className='flex flex-col items-center gap-2'>
+                <img
+                  src={fileUrl || user.imageUrl}
+                  alt='profile-img'
+                  className='object-cover w-16 h-16 rounded-full border border-border shadow-sm'
                 />
+                <div
+                  {...getRootProps()}
+                  className={`text-xs px-3 py-1.5 rounded-md border border-border cursor-pointer transition-colors ${isDragActive ? 'bg-accent/30' : 'hover:bg-accent/20'} select-none`}
+                >
+                  <input {...getInputProps()} />
+                  {isDragActive ? 'Drop image…' : 'Change Logo'}
+                </div>
+                {selectedFile && (
+                  <span className='text-xs text-muted-foreground max-w-[120px] truncate'>{selectedFile.name}</span>
+                )}
+              </div>
+              <p className='text-xs text-muted-foreground leading-relaxed max-w-sm'>This logo appears on invoices. Recommended square PNG/JPG under {MAX_FILE_SIZE_MB}MB.</p>
+            </div>
+
+            <div className='grid gap-4 md:grid-cols-2'>
+              <div className='space-y-1.5'>
+                <Label htmlFor='ownerName'>Owner Name</Label>
+                <Input id='ownerName' {...register('ownerName', { required: 'Owner name is required.' })} placeholder='Owner Name' />
+                {errors.ownerName && <p className='text-xs text-destructive'>{errors.ownerName.message}</p>}
+              </div>
+              <div className='space-y-1.5'>
+                <Label htmlFor='shopName'>Shop Name <span className='text-muted-foreground'>(Shown on bills)</span></Label>
+                <Input id='shopName' {...register('shopName', { required: 'Shop name is required.' })} placeholder='Full Shop Name' />
+                {errors.shopName && <p className='text-xs text-destructive'>{errors.shopName.message}</p>}
               </div>
             </div>
 
-            <div>
-              <Label>Owner Name</Label>
-              <Input {...register('ownerName')} placeholder='Owner Name' />
-            </div>
-            <div>
-              <Label>
-                Shop Name{' '}
-                <span className='text-zinc-400'>
-                  (Please Enter Full Name, this will Show on your bill.)
-                </span>
-              </Label>
-              <Input {...register('shopName')} placeholder='Shop Name' />
-            </div>
-            <div>
-              <Label>Email</Label>
-              <Input {...register('email')} placeholder='abc@example.com' />
-            </div>
-            <div>
-              <Label>Phone Number</Label>
-              <Input
-                {...register('phone', { pattern: /^[0-9]{10}$/ })}
-                placeholder='1234567890'
-              />
-            </div>
-            <div>
-              <Label>Password</Label>
-              <Input {...register('password', {required: true})} />
+            <div className='grid gap-4 md:grid-cols-2'>
+              <div className='space-y-1.5'>
+                <Label htmlFor='email'>Email</Label>
+                <Input id='email' type='email' {...register('email', { required: 'Email is required.', pattern: { value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/, message: 'Invalid email.' } })} placeholder='owner@example.com' />
+                {errors.email && <p className='text-xs text-destructive'>{errors.email.message}</p>}
+              </div>
+              <div className='space-y-1.5'>
+                <Label htmlFor='phone'>Phone Number</Label>
+                <Input id='phone' {...register('phone', { required: 'Phone number is required.', pattern: { value: /^[0-9]{10}$/, message: 'Enter 10 digits.' } })} placeholder='9876543210' />
+                {errors.phone && <p className='text-xs text-destructive'>{errors.phone.message}</p>}
+              </div>
             </div>
 
-          <div>
-              <Button>
-                Save  
-              </Button>            
-          </div>
-          
+            <div className='space-y-1.5'>
+              <Label htmlFor='shopName'>Shop Address <span className='text-muted-foreground'>(Shown on bills)</span></Label>
+              <Textarea id='address' {...register('address')} placeholder='Full Shop Address' rows={3} maxLength={100} />
+            </div>
 
-          </form>
-        </div>
-
-    
-        </Card>
-
-
-      ) : (
-        <Loader />
-      )}
-
-    
+            <div className='space-y-1.5'>
+              <Label htmlFor='password'>Password <span className='text-muted-foreground'>(Leave blank to keep unchanged)</span></Label>
+              <Input id='password' type='password' {...register('password', { minLength: { value: 6, message: 'Minimum 6 characters.' } })} placeholder='••••••••' />
+              {errors.password && <p className='text-xs text-destructive'>{errors.password.message}</p>}
+            </div>
+          </CardContent>
+          <CardFooter className='flex justify-between items-center gap-4 pt-4 border-t border-border/50'>
+            <p className='text-xs text-muted-foreground'>Make sure details match what appears on invoices.</p>
+            <Button type='submit' disabled={!hasChanges || isPending} className='min-w-[140px]'>
+              {isPending ? <Loader /> : hasChanges ? 'Save Changes' : 'No Changes'}
+            </Button>
+          </CardFooter>
+        </form>
+      </Card>
     </div>
   );
 };

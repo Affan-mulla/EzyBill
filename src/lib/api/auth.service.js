@@ -133,21 +133,21 @@ class AuthenticationService extends AppwriteService {
    * @param {Object} updateData - Profile update data
    * @returns {Promise<Object>} Updated user document
    */
-  async updateProfile({
-    ownerId,
-    shopName,
-    phone,
-    imageUrl,
-    ownerName,
-    email,
-    file,
-    password,
-  }) {
+  async updateProfile(data) {
     try {
       let updates = {};
+        const currentAccount = await this.account.get();
 
+      const ownerId = data.get("ownerId");
+      const shopName = data.get("shopName");
+      const address = data.get("address");
+      const phone = data.get("phone");
+      const ownerName = data.get("ownerName");
+      const email = data.get("email");
+      const password = data.get("password");
+      const file = data.get("file");
       // Update phone if provided
-      if (phone) {
+      if (currentAccount.phone !== phone && phone) {
         const phoneNo = `+91${phone}`;
         await this.account.updatePhone(phoneNo, password);
       }
@@ -158,23 +158,26 @@ class AuthenticationService extends AppwriteService {
         updates.ownerName = ownerName;
       }
 
+      if (address) {
+        updates.address = address;
+      }
+
       // Update email if provided
-      if (email) {
+      if (email && email !== currentAccount.email) {
+        
         await this.account.updateEmail(email, password);
         updates.email = email;
       }
 
       // Handle profile image upload
-      if (file && file.length > 0) {
-        const uploadedFile = await this.uploadFile(file[0]);
+      if (file instanceof File) {
+        const uploadedFile = await this.uploadFile(file); // internally uses ID.unique()
         if (uploadedFile) {
           const fileURL = await this.getFilePreview(uploadedFile.$id);
           if (fileURL) {
             updates.logo = fileURL;
           }
         }
-      } else if (imageUrl) {
-        updates.logo = imageUrl;
       }
 
       // Update shop name if provided

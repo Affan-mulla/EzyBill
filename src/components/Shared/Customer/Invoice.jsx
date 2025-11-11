@@ -27,13 +27,13 @@ const InvoicePreview = forwardRef(
           <img
             src={user.imageUrl}
             alt="Shop Logo"
-            className="rounded-full border-4 border-primary shadow-md mb-3 print:border-gray-400 w-10 h-10 object-cover"
+            className="rounded-full border-2 border-primary shadow-md mb-3 print:border-gray-400 w-14 h-14 object-cover"
           />
           <CardTitle className="text-2xl font-bold text-foreground print:text-black">
             {user.shopName || "Shop Name"}
           </CardTitle>
           <p className="text-sm text-muted-foreground mt-1 print:text-gray-600 text-center">
-            {user.shopAddress || "Shop Address"}
+            {user.address || "Shop Address"}
           </p>
         </CardHeader>
 

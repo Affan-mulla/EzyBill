@@ -77,7 +77,7 @@ const ProfileNotify = ({ className }) => {
         <DropdownMenuTrigger className="rounded-full focus:outline-none ring-0">
           <img
             src={user.imageUrl || "/assets/ProfilePlaceholder.svg"}
-            className={`${className} rounded-full border border-border hover:scale-105 transition-transform`}
+            className={`${className} rounded-full border border-border hover:scale-105 transition-transform object-cover w-9 h-10 aspect-square`}
             alt="profile"
           />
         </DropdownMenuTrigger>

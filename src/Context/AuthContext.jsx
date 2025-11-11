@@ -8,7 +8,8 @@ export const INITIAL_USER = {
     shopName: '',
     email: '',
     imageUrl: '',
-    phone: ''
+    phone: '',
+    address:''
 }
 
 const INITIAL_STATE = {
@@ -32,14 +33,17 @@ const AuthProvider = ({ children }) => {
     const checkAuthUser = async () => {
         try {
             const currentUser = await authService.getCurrentUser();
+            console.log(currentUser.logo.replace("/preview", "/view"));
+            
             if (currentUser) {
                 setUser({
                     id: currentUser.$id,
                     name: currentUser.ownerName,
                     shopName: currentUser.shopName,
                     email: currentUser.email,
-                    imageUrl: currentUser.logo,
+                    imageUrl: currentUser.logo.replace("/preview", "/view"),
                     phone: currentUser.phone,
+                    address : currentUser.address
                 })
 
                 setIsAuthenticated(true);
