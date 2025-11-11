@@ -181,7 +181,7 @@ const Billing = () => {
           </CardDescription>
         </CardHeader>
 
-        <CardContent className="p-6 space-y-6">
+        <CardContent className="px-6 py-2 space-y-6">
           <form className="flex flex-col gap-6" onSubmit={handleSubmit(onSubmit)}>
             {/* Customer Info */}
             <div className="grid gap-4 sm:grid-cols-2">
@@ -231,7 +231,7 @@ const Billing = () => {
 
             {/* Product Selector */}
             <div className="border border-border/60 rounded-lg overflow-hidden shadow-sm">
-              <div className="flex justify-between items-center px-4 py-3 bg-muted/40 border-b border-border/60">
+              <div className="flex justify-between items-center px-4 py-2 bg-muted/40 border-b border-border/60">
                 <div>
                   <h3 className="font-semibold text-foreground">Products</h3>
                   <p className="text-xs text-muted-foreground">Select items for this invoice</p>
@@ -239,7 +239,7 @@ const Billing = () => {
                 <span className="text-sm text-muted-foreground">{selectedRows.length} selected</span>
               </div>
 
-              <div className="max-h-80 overflow-y-auto">
+              <div className="max-h-52 overflow-y-auto">
                 {isLoading ? (
                   <div className="flex items-center justify-center h-40">
                     <Loader />
