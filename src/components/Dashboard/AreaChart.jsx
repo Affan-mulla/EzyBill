@@ -186,7 +186,7 @@ export function AreaChart1({ chartData, date }) {
         <Area
           dataKey="totalSpent"
           type="natural"
-          fill="var(--color-desktop)"
+          fill="var(--chart-3)"
           fillOpacity={0.4}
           stroke="var(--color-desktop)"
         />

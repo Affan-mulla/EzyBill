@@ -30,11 +30,11 @@ import {
 } from "@/components/ui/select";
 
 export function DatePickerWithPresets({ onChangeDate }) {
-  const [date, setDate] = React.useState(null); // A single date or a date range (array)
+  const [date, setDate] = React.useState(null); // Date range [start, end]
 
   const handleSelect = (value) => {
     let selectedDateStart = null;
-    let selectedDateEnd = new Date(); // Current date
+    let selectedDateEnd = null;
 
     switch (value) {
       case "0": // Today
@@ -59,12 +59,36 @@ export function DatePickerWithPresets({ onChangeDate }) {
 
     const selectedRange = value === "all" ? null : [selectedDateStart, selectedDateEnd];
     setDate(selectedRange);
-    onChangeDate(selectedRange); // Now trigger the date change
+    if (onChangeDate) {
+      onChangeDate(selectedRange);
+    }
+  };
+
+  const handleDateSelect = (selectedDate) => {
+    if (!selectedDate) {
+      setDate(null);
+      if (onChangeDate) {
+        onChangeDate(null);
+      }
+      return;
+    }
+
+    // Handle range selection from calendar
+    if (selectedDate.from && selectedDate.to) {
+      const finalRange = [startOfDay(selectedDate.from), endOfDay(selectedDate.to)];
+      setDate(finalRange);
+      if (onChangeDate) {
+        onChangeDate(finalRange);
+      }
+    } else if (selectedDate.from) {
+      // Only start date selected, keep as object temporarily for visual feedback
+      setDate(selectedDate);
+    }
   };
 
   return (
     <Popover>
-      <PopoverTrigger asChild>
+      <PopoverTrigger >
         <Button
           variant={"outline"}
           className={cn(
@@ -75,12 +99,18 @@ export function DatePickerWithPresets({ onChangeDate }) {
           <CalendarIcon className="mr-2 h-4 w-4" />
           {date ? (
             Array.isArray(date) ? (
-              `${format(date[0], "P")} - ${format(date[1], "P")}`
+              `${format(date[0], "PPP")} - ${format(date[1], "PPP")}`
+            ) : date.from ? (
+              date.to ? (
+                `${format(date.from, "PPP")} - ${format(date.to, "PPP")}`
+              ) : (
+                format(date.from, "PPP")
+              )
             ) : (
-              format(date, "P")
+              <span>Pick a date range</span>
             )
           ) : (
-            <span>Pick a date</span>
+            <span>Pick a date range</span>
           )}
         </Button>
       </PopoverTrigger>
@@ -98,12 +128,22 @@ export function DatePickerWithPresets({ onChangeDate }) {
         </Select>
         <div className="rounded-md border">
           <Calendar
-            mode="single"
-            selected={date ? date[0] : null} // Handle single date selection in the calendar
-            onSelect={(newDate) => {
-              setDate(newDate); // Update the date with the selected single date
-              onChangeDate(newDate); // Trigger the update after selection
-            }}
+            mode="range"
+            defaultMonth={
+              Array.isArray(date) 
+                ? date[0] 
+                : date?.from 
+                ? date.from 
+                : new Date()
+            }
+            selected={
+              Array.isArray(date) 
+                ? { from: date[0], to: date[1] }
+                : date || undefined
+            }
+            onSelect={handleDateSelect}
+            numberOfMonths={2}
+            initialFocus
           />
         </div>
       </PopoverContent>
